@@ -1,0 +1,11 @@
+{
+  "name": "costlocker-desktop",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^2.0.2"
+  }
+}
