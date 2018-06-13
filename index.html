@@ -9,6 +9,7 @@
       id="costlocker"
       src="http://costlocker.php7:8080/" 
       autosize="on"
+      preload="./costlocker.js"
     >
     </webview>
 
@@ -23,6 +24,22 @@
         });
         webview.addEventListener('did-stop-loading', () => {
           console.log('Costlocker loaded');
+        });
+        webview.addEventListener('dom-ready', () => {
+          webview.openDevTools();
+          setTimeout(
+            () => {
+              const idleDate = new Date();
+              idleDate.setHours(idleDate.getHours() - 2);
+              const timestamp = Math.floor(idleDate / 1000);
+              webview.executeJavaScript("_clWrapApp_reminderTrackButtonPressed()");
+              webview.executeJavaScript("_clWrapApp_idleTimeDetected(" + timestamp + ");");
+            },
+            2000
+          );
+        });
+        webview.addEventListener('ipc-message', event => {
+          console.log(event);
         });
       }
     </script>
