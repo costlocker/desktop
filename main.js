@@ -37,8 +37,9 @@ app.on('ready', () => {
     createTray();
 });
 app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') {
-    app.quit()
+  const isNotMacOS = process.platform !== 'darwin';
+  if (isNotMacOS) {
+    app.quit();
   }
 });
 app.on('activate', function () {
@@ -46,6 +47,14 @@ app.on('activate', function () {
     createWindow();
   }
 });
+
+ipcMain.on('app-show', openApp);
+ipcMain.on('app-hide', () => {
+    if (mainWindow) {
+        mainWindow.minimize();
+    }
+});
+ipcMain.on('app-quit', () => app.quit());
 
 const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
 ipcMain.on('update-tray', (event, args) => {
