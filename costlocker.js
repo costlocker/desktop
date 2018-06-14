@@ -26,6 +26,6 @@ global._clWrapApp = {
     terminateApp: () => reloadApp('app-quit'),
 };
 
-// Desktop -> Costlocker
+// renderer.js: Desktop -> Costlocker
 // _clWrapApp_idleTimeDetected
 // _clWrapApp_reminderTrackButtonPressed

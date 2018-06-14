@@ -98,7 +98,10 @@ ipcMain.on('update-reminder', (event, args) => {
                 body: 'Don’t forget to track time',
                 closeButtonText: 'Close',
             });
-            notification.on('click', openApp);
+            notification.on('click', () => {
+                openApp();
+                event.sender.send('reminder-clicked', 2);
+            });
             notification.show();
         },
         seconds * 1000

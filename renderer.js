@@ -25,3 +25,6 @@ webview.addEventListener('dom-ready', () => {
 webview.addEventListener('ipc-message', event => {
     ipcRenderer.send(event.channel, event.args);
 });
+
+const callCostlocker = (method) => webview.executeJavaScript(`${method}()`);
+ipcRenderer.on('reminder-clicked', () => callCostlocker('_clWrapApp_reminderTrackButtonPressed'));
