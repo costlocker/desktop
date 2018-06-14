@@ -1,6 +1,10 @@
 const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron');
 
 let mainWindow, tray;
+const state = {
+    traySettings: null,
+    trayInterval: null,
+};
 
 function createWindow () {
   mainWindow = new BrowserWindow({width: 800, height: 600});
@@ -40,10 +44,29 @@ app.on('activate', function () {
   }
 });
 
+const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
 ipcMain.on('update-tray', (event, args) => {
-    const settings = args[0]; 
-    var image = settings.isActive ? 'images/icon_16x16.png' : 'images/icon_inactive_16x16.png';
-    var title = settings.timestamp ? `${settings.timestamp} ${settings.name || ''}` : '';
-    tray.setImage(image);
-    tray.setTitle(title);
+    state.traySettings = args[0];
+    if (state.trayInterval) {
+        clearInterval(state.trayInterval);
+    }
+    if (!state.traySettings.isActive) {
+        tray.setImage('images/icon_inactive_16x16.png');
+        tray.setTitle('');
+        return;
+    }
+    tray.setImage('images/icon_16x16.png');
+    const updateTitle = () => {
+        const now = Math.floor(new Date().getTime() / 1000);
+        const duration = formatSeconds(now - state.traySettings.timestamp);
+        if (state.traySettings.name && state.traySettings.timestamp) {
+            tray.setTitle(`${state.traySettings.name} (${duration})`);
+        } else if (state.traySettings.name) {
+            tray.setTitle(`${state.traySettings.name}`);
+        } else {
+            tray.setTitle(`${duration}`);
+        }
+    };
+    updateTitle();
+    state.trayInterval = setInterval(updateTitle, 1000);
 });
