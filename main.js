@@ -1,9 +1,10 @@
-const { app, BrowserWindow, Menu, Tray, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, Tray, ipcMain, Notification } = require('electron');
 
 let mainWindow, tray;
 const state = {
     traySettings: null,
     trayInterval: null,
+    reminderTimeout: null,
 };
 
 function createWindow () {
@@ -15,10 +16,7 @@ function createWindow () {
   });
 };
 
-function createTray () {
-  tray = new Tray('images/icon_inactive_16x16.png');
-  tray.setToolTip('Costlocker');
-  tray.on('click', function () {
+const openApp = () => {
     if (mainWindow === null) {
         createWindow();
     } else if (mainWindow.isMinimized()) {
@@ -26,7 +24,12 @@ function createTray () {
     } else {
         mainWindow.focus();
     }
-  });
+}
+
+function createTray () {
+  tray = new Tray('images/icon_inactive_16x16.png');
+  tray.setToolTip('Costlocker');
+  tray.on('click', openApp);
 };
 
 app.on('ready', () => {
@@ -69,4 +72,26 @@ ipcMain.on('update-tray', (event, args) => {
     };
     updateTitle();
     state.trayInterval = setInterval(updateTitle, 1000);
+});
+
+ipcMain.on('update-reminder', (event, args) => {
+    if (state.reminderTimeout) {
+        clearTimeout(state.reminderTimeout);
+    }
+    const seconds = args[0];
+    if (!seconds) {
+        return;
+    }
+    state.reminderTimeout = setTimeout(
+        () => {
+            const notification = new Notification({
+                title: 'Reminder from Costlocker',
+                body: 'Don’t forget to track time',
+                closeButtonText: 'Close',
+            });
+            notification.on('click', openApp);
+            notification.show();
+        },
+        seconds * 1000
+    );
 });

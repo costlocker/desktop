@@ -9,6 +9,7 @@ const reloadTray = (updatedSettings) => {
     traySettings = { ...traySettings, ...updatedSettings };
     ipcRenderer.sendToHost('update-tray', traySettings);
 };
+const reloadReminder = (seconds) => ipcRenderer.sendToHost('update-reminder', seconds);
 
 // Costlocker -> Desktop
 global._clWrapApp = {
@@ -17,8 +18,8 @@ global._clWrapApp = {
     setProjectTime_: (timestamp) => reloadTray({ timestamp }),
     startDetectingIdleTime_: (interval) => console.log('startDetectingIdleTime_', interval),
     stopDetectingIdleTime: () => console.log('stopDetectingIdleTime'),
-    startRemindingToTrack_: (interval) => console.log('startRemindingToTrack_', interval),
-    stopRemindingToTrack: () => console.log('stopRemindingToTrack'),
+    startRemindingToTrack_: (seconds) => reloadReminder(seconds),
+    stopRemindingToTrack: () => reloadReminder(null),
     presentPopover_: () => console.log('presentPopover_'),
     dismissPopover: () => console.log('dismissPopover'),
     terminateApp: () => console.log('terminateApp'),
