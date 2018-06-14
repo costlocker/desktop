@@ -1,4 +1,5 @@
 const { app, BrowserWindow, Menu, Tray, ipcMain, Notification } = require('electron');
+const desktopIdle = require('desktop-idle');
 
 let mainWindow, tray;
 const state = {
@@ -6,7 +7,6 @@ const state = {
     trayInterval: null,
     reminderTimeout: null,
     idleTimeSeconds: null,
-    idleTimeStart: null,
     detectIdletime: null,
 };
 
@@ -64,13 +64,12 @@ const checkIdleTime = () => {
         return;
     }
     const now = Math.floor(new Date().getTime() / 1000);
-    const idleTime = Math.floor(now - state.idleTimeStart);
-    console.log('check idle', idleTime, state.idleTimeSeconds);
+    const idleTime = Math.floor(desktopIdle.getIdleTime());
     if (idleTime != state.idleTimeSeconds) {
         return;
     }
     openApp();
-    state.detectIdletime(state.idleTimeStart);
+    state.detectIdletime(now - idleTime);
 };
 
 const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
@@ -133,6 +132,5 @@ ipcMain.on('update-reminder', (event, args) => {
 
 ipcMain.on('update-idletime', (event, args) => {
     state.idleTimeSeconds = args[0];
-    state.idleTimeStart = Math.floor(new Date().getTime() / 1000);
     state.detectIdletime = (timestamp) => event.sender.send('idletime-detected', timestamp);
 });
