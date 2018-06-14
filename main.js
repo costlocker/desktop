@@ -5,6 +5,9 @@ const state = {
     traySettings: null,
     trayInterval: null,
     reminderTimeout: null,
+    idleTimeSeconds: null,
+    idleTimeStart: null,
+    detectIdletime: null,
 };
 
 function createWindow () {
@@ -56,6 +59,20 @@ ipcMain.on('app-hide', () => {
 });
 ipcMain.on('app-quit', () => app.quit());
 
+const checkIdleTime = () => {
+    if (!state.idleTimeSeconds) {
+        return;
+    }
+    const now = Math.floor(new Date().getTime() / 1000);
+    const idleTime = Math.floor(now - state.idleTimeStart);
+    console.log('check idle', idleTime, state.idleTimeSeconds);
+    if (idleTime != state.idleTimeSeconds) {
+        return;
+    }
+    openApp();
+    state.detectIdletime(state.idleTimeStart);
+};
+
 const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
 ipcMain.on('update-tray', (event, args) => {
     state.traySettings = args[0];
@@ -80,7 +97,13 @@ ipcMain.on('update-tray', (event, args) => {
         }
     };
     updateTitle();
-    state.trayInterval = setInterval(updateTitle, 1000);
+    state.trayInterval = setInterval(
+        () => {
+            updateTitle();
+            checkIdleTime();
+        },
+        1000
+    );
 });
 
 ipcMain.on('update-reminder', (event, args) => {
@@ -106,4 +129,10 @@ ipcMain.on('update-reminder', (event, args) => {
         },
         seconds * 1000
     );
+});
+
+ipcMain.on('update-idletime', (event, args) => {
+    state.idleTimeSeconds = args[0];
+    state.idleTimeStart = Math.floor(new Date().getTime() / 1000);
+    state.detectIdletime = (timestamp) => event.sender.send('idletime-detected', timestamp);
 });

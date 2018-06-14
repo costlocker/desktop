@@ -10,21 +10,17 @@ webview.addEventListener('did-stop-loading', () => {
 });
 webview.addEventListener('dom-ready', () => {
     webview.openDevTools();
-    return;
-    setTimeout(
-        () => {
-            const idleDate = new Date();
-            idleDate.setHours(idleDate.getHours() - 2);
-            const timestamp = Math.floor(idleDate / 1000);
-            webview.executeJavaScript("_clWrapApp_reminderTrackButtonPressed()");
-            webview.executeJavaScript("_clWrapApp_idleTimeDetected(" + timestamp + ");");
-        },
-        2000
-    );
 });
 webview.addEventListener('ipc-message', event => {
     ipcRenderer.send(event.channel, event.args);
 });
 
-const callCostlocker = (method) => webview.executeJavaScript(`${method}()`);
+const callCostlocker = (method, arg) => {
+    if (arg === undefined) {
+        webview.executeJavaScript(`${method}()`);
+    } else {
+        webview.executeJavaScript(`${method}(${arg})`);
+    }
+};
 ipcRenderer.on('reminder-clicked', () => callCostlocker('_clWrapApp_reminderTrackButtonPressed'));
+ipcRenderer.on('idletime-detected', (event, timestamp) => callCostlocker('_clWrapApp_idleTimeDetected', timestamp));
