@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8">
     <title>Costlocker!</title>
+    <link rel="stylesheet" type="text/css" href="./loading.css">
   </head>
   <body>
     <webview
@@ -12,9 +13,19 @@
       preload="./costlocker.js"
     >
     </webview>
-    <div id="error" style="display: none">
+    <div id="error" class="center" style="display: none">
       <h1>Oops, Costlocker not loaded</h1>
       <em id="error-message"></em>
+    </div>
+    <div id="spinner">
+      <div class="cl-loading cl-loading--show">
+        <span class="cl-loading__logos">
+            <span class="cl-loading__logo cl-loading__logo--one"></span>
+            <span class="cl-loading__logo cl-loading__logo--two"></span>
+            <span class="cl-loading__logo cl-loading__logo--three"></span>
+            <span class="cl-loading__logo cl-loading__logo--four"></span>
+        </span>
+      </div>
     </div>
     <script>
       require('./renderer.js')
@@ -36,6 +47,8 @@
     }
     #error {
       color: red;
+    }
+    .center {
       position: absolute;
       top: 50%;
       left: 50%;

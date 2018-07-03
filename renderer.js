@@ -2,14 +2,16 @@
 const { ipcRenderer } = require('electron');
 
 const webview = document.querySelector('webview');
-webview.addEventListener('did-start-loading', () => {
-    console.log('start loading');
-});
+const spinner = document.getElementById('spinner');
+
+const deleteElement = (e) => e.parentElement ? e.parentElement.removeChild(e) : null;
+
 webview.addEventListener('did-stop-loading', () => {
-    console.log('Costlocker loaded');
+    deleteElement(spinner);
 });
 webview.addEventListener('did-fail-load', (e) => {
-    webview.parentElement.removeChild(webview);
+    deleteElement(webview);
+    deleteElement(spinner);
     document.getElementById('error').removeAttribute('style');
     document.getElementById('error-message').innerHTML = `${e.errorCode} ${e.errorDescription}`;
 });
