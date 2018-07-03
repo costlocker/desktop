@@ -12,8 +12,8 @@ const state = {
 
 function createWindow () {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 480,
+    height: 680,
     backgroundColor: '#f2f2f2'
   });
   mainWindow.loadFile('index.html');
