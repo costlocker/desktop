@@ -10,13 +10,17 @@ const state = {
     detectIdletime: null,
 };
 
+function getFile(path) {
+    return `${__dirname}/../${path}`;
+}
+
 function createWindow () {
   mainWindow = new BrowserWindow({
     width: 480,
     height: 680,
     backgroundColor: '#f2f2f2'
   });
-  mainWindow.loadFile('index.html');
+  mainWindow.loadFile(getFile('index.html'));
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
@@ -34,7 +38,7 @@ const openApp = () => {
 }
 
 function createTray () {
-  tray = new Tray('images/icon_inactive_16x16.png');
+  tray = new Tray(getFile('assets/images/icon_inactive_16x16.png'));
   tray.setToolTip('Costlocker');
   tray.on('click', openApp);
 };
@@ -83,11 +87,11 @@ ipcMain.on('update-tray', (event, args) => {
         clearInterval(state.trayInterval);
     }
     if (!state.traySettings.isActive) {
-        tray.setImage('images/icon_inactive_16x16.png');
+        tray.setImage(getFile('assets/images/icon_inactive_16x16.png'));
         tray.setTitle('');
         return;
     }
-    tray.setImage('images/icon_16x16.png');
+    tray.setImage(getFile('assets/images/icon_16x16.png'));
     const updateTitle = () => {
         const now = Math.floor(new Date().getTime() / 1000);
         const duration = formatSeconds(now - state.traySettings.timestamp);

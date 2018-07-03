@@ -3,14 +3,15 @@
   <head>
     <meta charset="UTF-8">
     <title>Costlocker!</title>
-    <link rel="stylesheet" type="text/css" href="./loading.css">
+    <link rel="stylesheet" type="text/css" href="./assets/css/app.css">
+    <link rel="stylesheet" type="text/css" href="./assets/css/loading.css">
   </head>
   <body>
     <webview
       id="costlocker"
       src="http://costlocker.php7:8080/" 
       autosize="on"
-      preload="./costlocker.js"
+      preload="./src/costlocker.js"
     >
     </webview>
     <div id="error" class="center" style="display: none">
@@ -28,32 +29,7 @@
       </div>
     </div>
     <script>
-      require('./renderer.js')
+      require('./src/renderer.js')
     </script>
-    <style>
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-    webview {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      display: inline-flex !important;
-    }
-    #error {
-      color: red;
-    }
-    .center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translateX(-50%) translateY(-50%);
-    }
-    </style>
   </body>
 </html>
