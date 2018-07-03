@@ -17,10 +17,10 @@ function createWindow () {
     backgroundColor: '#f2f2f2'
   });
   mainWindow.loadFile('index.html');
-  mainWindow.webContents.openDevTools();
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
+  mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('webview-devtools'));
 };
 
 const openApp = () => {
