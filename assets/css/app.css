@@ -21,3 +21,11 @@ webview {
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
 }
+#close {
+    margin-top: 1em;
+    font-size: 1.2em;
+    text-align: center;
+    width: 100%;
+    border: 0;
+    background: #fff;
+}

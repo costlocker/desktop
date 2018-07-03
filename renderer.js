@@ -6,6 +6,10 @@ const spinner = document.getElementById('spinner');
 
 const deleteElement = (e) => e.parentElement ? e.parentElement.removeChild(e) : null;
 
+document.getElementById('close').addEventListener('click', () => {
+    ipcRenderer.send('app-quit', null);
+});
+
 webview.addEventListener('did-stop-loading', () => {
     deleteElement(spinner);
 });
