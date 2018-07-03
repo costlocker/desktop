@@ -11,7 +11,7 @@ const state = {
 };
 
 function getFile(path) {
-    return `${__dirname}/../${path}`;
+    return `${__dirname}/${path}`;
 }
 
 function createWindow () {
