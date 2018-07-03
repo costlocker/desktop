@@ -1,7 +1,7 @@
 {
   "name": "costlocker-desktop",
   "license": "MIT",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "start": "electron ."
   },
@@ -9,6 +9,6 @@
     "electron": "^2.0.2"
   },
   "dependencies": {
-    "desktop-idle": "^1.1.1"
+    "desktop-idle": "git+https://github.com/CudoVentures/node-desktop-idle.git#prebuild"
   }
 }
