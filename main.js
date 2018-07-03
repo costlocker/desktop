@@ -95,8 +95,10 @@ ipcMain.on('update-tray', (event, args) => {
             tray.setTitle(`${state.traySettings.name} (${duration})`);
         } else if (state.traySettings.name) {
             tray.setTitle(`${state.traySettings.name}`);
-        } else {
+        } else if (state.traySettings.timestamp) {
             tray.setTitle(`${duration}`);
+        } else {
+            tray.setTitle('');
         }
     };
     updateTitle();
