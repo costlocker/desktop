@@ -14,10 +14,21 @@ function getFile(path) {
     return `${__dirname}/${path}`;
 }
 
+function hideApp() {
+    if (mainWindow) {
+        mainWindow.minimize();
+    }
+}
+
 function createWindow () {
   mainWindow = new BrowserWindow({
     width: 480,
     height: 680,
+    frame: false,
+    maximizable: false,
+    fullscreenable: false,
+    resizable: false,
+    skipTaskbar: true,
     backgroundColor: '#f2f2f2'
   });
   mainWindow.loadFile(getFile('index.html'));
@@ -25,7 +36,8 @@ function createWindow () {
     mainWindow = null;
   });
   mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('webview-devtools'));
-};
+  mainWindow.on('blur', hideApp);
+}
 
 const openApp = () => {
     if (mainWindow === null) {
@@ -40,12 +52,21 @@ const openApp = () => {
 function createTray () {
   tray = new Tray(getFile('assets/images/icon_inactive_16x16.png'));
   tray.setToolTip('Costlocker');
-  tray.on('click', openApp);
+  tray.on('click', () => {
+      if (mainWindow && mainWindow.isFocused()) {
+        hideApp();
+      } else {
+        openApp();
+      }
+  });
 };
 
 app.on('ready', () => {
     createWindow();
     createTray();
+    if (app.dock) {
+        app.dock.hide();
+    }
 });
 app.on('window-all-closed', function () {
   const isNotMacOS = process.platform !== 'darwin';
@@ -60,11 +81,7 @@ app.on('activate', function () {
 });
 
 ipcMain.on('app-show', openApp);
-ipcMain.on('app-hide', () => {
-    if (mainWindow) {
-        mainWindow.minimize();
-    }
-});
+ipcMain.on('app-hide', hideApp);
 ipcMain.on('app-quit', () => app.quit());
 
 const checkIdleTime = () => {
