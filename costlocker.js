@@ -5,9 +5,20 @@ let traySettings = {
     name: '',
     timestamp: '',
 };
+let trayTimeout = null;
+
 const reloadTray = (updatedSettings) => {
     traySettings = { ...traySettings, ...updatedSettings };
-    ipcRenderer.sendToHost('update-tray', traySettings);
+    if (trayTimeout) {
+        return;
+    }
+    trayTimeout = setTimeout(
+        () => {
+            ipcRenderer.sendToHost('update-tray', traySettings);
+            trayTimeout = clearTimeout(trayTimeout);
+        },
+        100
+    );
 };
 const reloadApp = (state) => ipcRenderer.sendToHost(state);
 const reloadAppTimeout = (state, seconds) => ipcRenderer.sendToHost(state, seconds);
