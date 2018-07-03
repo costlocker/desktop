@@ -11,7 +11,11 @@ const state = {
 };
 
 function createWindow () {
-  mainWindow = new BrowserWindow({width: 800, height: 600});
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    backgroundColor: '#f2f2f2'
+  });
   mainWindow.loadFile('index.html');
   mainWindow.webContents.openDevTools();
   mainWindow.on('closed', function () {

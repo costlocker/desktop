@@ -8,6 +8,11 @@ webview.addEventListener('did-start-loading', () => {
 webview.addEventListener('did-stop-loading', () => {
     console.log('Costlocker loaded');
 });
+webview.addEventListener('did-fail-load', (e) => {
+    webview.parentElement.removeChild(webview);
+    document.getElementById('error').removeAttribute('style');
+    document.getElementById('error-message').innerHTML = `${e.errorCode} ${e.errorDescription}`;
+});
 webview.addEventListener('dom-ready', () => {
     webview.openDevTools();
 });
