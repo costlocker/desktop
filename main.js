@@ -20,6 +20,10 @@ function hideApp() {
     }
 }
 
+function quitApp() {
+    app.quit();
+}
+
 function createWindow () {
   mainWindow = new BrowserWindow({
     width: 480,
@@ -36,7 +40,6 @@ function createWindow () {
     mainWindow = null;
   });
   mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('webview-devtools'));
-  mainWindow.on('blur', hideApp);
 }
 
 const openApp = () => {
@@ -49,16 +52,44 @@ const openApp = () => {
     }
 }
 
+const toggleApp = () => {
+    if (mainWindow && mainWindow.isVisible && !mainWindow.isMinimized()) {
+        hideApp();
+    } else {
+        openApp();
+    }
+}
+
 function createTray () {
   tray = new Tray(getFile('assets/images/icon_inactive_16x16.png'));
   tray.setToolTip('Costlocker');
-  tray.on('click', () => {
-      if (mainWindow && mainWindow.isFocused()) {
-        hideApp();
-      } else {
-        openApp();
-      }
-  });
+  tray.on('click', toggleApp);
+  tray.on('double-click', toggleApp);
+  tray.on('right-click', toggleApp);
+  tray.setContextMenu(Menu.buildFromTemplate([
+    {
+        label: 'Open',
+        click: openApp,
+    },
+    {
+        label: 'Minimize',
+        click: hideApp,
+    },
+    {
+        type: 'separator'
+    },
+    {
+        label: 'Quit',
+        click: quitApp,
+    },
+    {
+        type: 'separator'
+    },
+    {
+        label: 'About',
+        click: () => require('electron').shell.openExternal('https://costlocker.com?utm_source=desktop'),
+    },
+  ]))
 };
 
 app.on('ready', () => {
@@ -82,7 +113,7 @@ app.on('activate', function () {
 
 ipcMain.on('app-show', openApp);
 ipcMain.on('app-hide', hideApp);
-ipcMain.on('app-quit', () => app.quit());
+ipcMain.on('app-quit', quitApp);
 
 const checkIdleTime = () => {
     if (!state.idleTimeSeconds) {
@@ -98,28 +129,33 @@ const checkIdleTime = () => {
 };
 
 const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
+const setAppImage = (image) => tray.setImage(image);
+const setAppTitle = (title) => {
+    tray.setTitle(title);
+    tray.setToolTip(title && title.length ? title : 'Costlocker');
+};
 ipcMain.on('update-tray', (event, args) => {
     state.traySettings = args[0];
     if (state.trayInterval) {
         clearInterval(state.trayInterval);
     }
     if (!state.traySettings.isActive) {
-        tray.setImage(getFile('assets/images/icon_inactive_16x16.png'));
-        tray.setTitle('');
+        setAppImage(getFile('assets/images/icon_inactive_16x16.png'));
+        setAppTitle('');
         return;
     }
-    tray.setImage(getFile('assets/images/icon_16x16.png'));
+    setAppImage(getFile('assets/images/icon_16x16.png'));
     const updateTitle = () => {
         const now = Math.floor(new Date().getTime() / 1000);
         const duration = formatSeconds(now - state.traySettings.timestamp);
         if (state.traySettings.name && state.traySettings.timestamp) {
-            tray.setTitle(`${state.traySettings.name} (${duration})`);
+            setAppTitle(`${state.traySettings.name} (${duration})`);
         } else if (state.traySettings.name) {
-            tray.setTitle(`${state.traySettings.name}`);
+            setAppTitle(`${state.traySettings.name}`);
         } else if (state.traySettings.timestamp) {
-            tray.setTitle(`${duration}`);
+            setAppTitle(`${duration}`);
         } else {
-            tray.setTitle('');
+            setAppTitle('');
         }
     };
     updateTitle();
