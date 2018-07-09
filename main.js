@@ -8,16 +8,21 @@ const state = {
     reminderTimeout: null,
     idleTimeSeconds: null,
     detectIdletime: null,
-    colorTheme: null,
+    window: {
+        theme: null,
+        width: 480,
+        height: 680,
+        padding: 20,
+    }
 };
 
 function getIcon(isActive) {
     let status;
     if (process.platform == 'win32') { 
-        if (!state.colorTheme) {
-            state.colorTheme = systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black';
+        if (!state.window.theme) {
+            state.window.theme = systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black';
         }
-        status = isActive ? 'win/icon.ico' : `win/${state.colorTheme}.ico`;
+        status = isActive ? 'win/icon.ico' : `win/${state.window.theme}.ico`;
     } else {
         status = isActive ? 'png/activeTemplate.png' : 'png/inactive.png';
     }
@@ -26,6 +31,50 @@ function getIcon(isActive) {
 
 function getFile(path) {
     return `${__dirname}/${path}`;
+}
+
+function setWindowPosition() {
+    if (!mainWindow) {
+        return;
+    }
+    const position = getWindowPosition();
+    mainWindow.setPosition(position.x, position.y);
+}
+
+function getWindowPosition() {
+    const screen = require('electron').screen;
+    let position = mainWindow && process.platform == 'win32'
+        ? screen.getCursorScreenPoint() : tray.getBounds();
+    const primarySize = screen.getPrimaryDisplay().workAreaSize; // Todo: this uses primary screen, it should use current
+    const verticalPosition = position.y >= primarySize.height / 2 ? 'bottom' : 'top';
+    const horizontalPosition = position.x >= primarySize.width / 2 ? 'right' : 'left';
+    return {
+        x: getX(),
+        y: getY()
+    };
+
+    function getX() {
+        // Find the horizontal bounds if the window were positioned normally
+        const horizBounds = {
+            left: position.x - state.window.width / 2,
+            right: position.x + state.window.width / 2
+        }
+        // If the window crashes into the side of the screem, reposition
+        if (horizontalPosition == 'left') {
+            return horizBounds.left <= state.window.padding
+                ? (position.x + 2 * state.window.padding)
+                : horizBounds.left;
+        } else {
+            return horizBounds.right >= primarySize.width
+                ? primarySize.width - state.window.padding - state.window.width
+                : horizBounds.right - state.window.width;
+        }
+    }
+    function getY() {
+        return verticalPosition == 'bottom'
+            ? Math.max(state.window.padding, position.y - state.window.height - state.window.padding)
+            : position.y + state.window.padding;
+    }
 }
 
 function hideApp() {
@@ -39,14 +88,17 @@ function quitApp() {
 }
 
 function createWindow () {
+  const position = getWindowPosition();
   mainWindow = new BrowserWindow({
-    width: 480,
-    height: 680,
+    width: state.window.width,
+    height: state.window.height,
     frame: false,
     maximizable: false,
     fullscreenable: false,
     resizable: false,
     skipTaskbar: true,
+    x: position.x,
+    y: position.y,
     icon: getFile('assets/icons/png/1024x1024.png'),
     backgroundColor: '#f2f2f2'
   });
@@ -62,8 +114,10 @@ const openApp = () => {
         createWindow();
     } else if (mainWindow.isMinimized()) {
         mainWindow.restore();
+        setWindowPosition();
     } else {
         mainWindow.focus();
+        setWindowPosition();
     }
 }
 
@@ -108,8 +162,8 @@ function createTray () {
 };
 
 app.on('ready', () => {
-    createWindow();
     createTray();
+    createWindow();
     if (app.dock) {
         app.dock.hide();
     }
