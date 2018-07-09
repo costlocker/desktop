@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, Tray, ipcMain, Notification } = require('electron');
+const { app, BrowserWindow, Menu, Tray, systemPreferences, ipcMain, Notification } = require('electron');
 const desktopIdle = require('desktop-idle');
 
 let mainWindow, tray;
@@ -8,7 +8,21 @@ const state = {
     reminderTimeout: null,
     idleTimeSeconds: null,
     detectIdletime: null,
+    colorTheme: null,
 };
+
+function getIcon(isActive) {
+    let status;
+    if (process.platform == 'win32') { 
+        if (!state.colorTheme) {
+            state.colorTheme = systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black';
+        }
+        status = isActive ? 'win/icon.ico' : `win/${state.colorTheme}.ico`;
+    } else {
+        status = isActive ? 'png/activeTemplate.png' : 'png/inactive.png';
+    }
+    return getFile(`assets/icons/${status}`);
+}
 
 function getFile(path) {
     return `${__dirname}/${path}`;
@@ -33,6 +47,7 @@ function createWindow () {
     fullscreenable: false,
     resizable: false,
     skipTaskbar: true,
+    icon: getFile('assets/icons/png/1024x1024.png'),
     backgroundColor: '#f2f2f2'
   });
   mainWindow.loadFile(getFile('index.html'));
@@ -61,7 +76,7 @@ const toggleApp = () => {
 }
 
 function createTray () {
-  tray = new Tray(getFile('assets/images/icon_inactive_16x16.png'));
+  tray = new Tray(getIcon());
   tray.setToolTip('Costlocker');
   tray.on('click', toggleApp);
   tray.on('double-click', toggleApp);
@@ -139,12 +154,11 @@ ipcMain.on('update-tray', (event, args) => {
     if (state.trayInterval) {
         clearInterval(state.trayInterval);
     }
+    setAppImage(getIcon(state.traySettings.isActive));
     if (!state.traySettings.isActive) {
-        setAppImage(getFile('assets/images/icon_inactive_16x16.png'));
         setAppTitle('');
         return;
     }
-    setAppImage(getFile('assets/images/icon_16x16.png'));
     const updateTitle = () => {
         const now = Math.floor(new Date().getTime() / 1000);
         const duration = formatSeconds(now - state.traySettings.timestamp);
