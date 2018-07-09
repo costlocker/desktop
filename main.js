@@ -17,16 +17,18 @@ const state = {
 };
 
 function getIcon(isActive) {
-    let status;
-    if (process.platform == 'win32') { 
+    let icon;
+    if (process.platform == 'linux') { 
+        icon = isActive ? 'png/blue.png' : `png/${state.window.theme || 'white'}.png`;
+    } else if (process.platform == 'win32') { 
         if (!state.window.theme) {
             state.window.theme = systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black';
         }
-        status = isActive ? 'win/icon.ico' : `win/${state.window.theme}.ico`;
+        icon = isActive ? 'win/icon.ico' : `win/${state.window.theme}.ico`;
     } else {
-        status = isActive ? 'png/activeTemplate.png' : 'png/inactive.png';
+        icon = isActive ? 'png/activeTemplate.png' : 'png/inactive.png';
     }
-    return getFile(`assets/icons/${status}`);
+    return getFile(`assets/icons/${icon}`);
 }
 
 function getFile(path) {
@@ -38,10 +40,15 @@ function setWindowPosition() {
         return;
     }
     const position = getWindowPosition();
-    mainWindow.setPosition(position.x, position.y);
+    if (position.x !== undefined) {
+        mainWindow.setPosition(position.x, position.y);
+    }
 }
 
 function getWindowPosition() {
+    if (process.platform == 'linux') {
+        return { center: true };
+    }
     const screen = require('electron').screen;
     let position = mainWindow && process.platform == 'win32'
         ? screen.getCursorScreenPoint() : tray.getBounds();
@@ -88,7 +95,6 @@ function quitApp() {
 }
 
 function createWindow () {
-  const position = getWindowPosition();
   mainWindow = new BrowserWindow({
     width: state.window.width,
     height: state.window.height,
@@ -97,8 +103,7 @@ function createWindow () {
     fullscreenable: false,
     resizable: false,
     skipTaskbar: true,
-    x: position.x,
-    y: position.y,
+    ...getWindowPosition(),
     icon: getFile('assets/icons/png/1024x1024.png'),
     backgroundColor: '#f2f2f2'
   });
