@@ -270,3 +270,16 @@ ipcMain.on('update-idletime', (event, args) => {
     state.idleTimeSeconds = args[0];
     state.detectIdletime = (timestamp) => event.sender.send('idletime-detected', timestamp);
 });
+
+const reloadWindowSettings = () => {
+    openApp();
+    mainWindow.setSize(state.window.width, state.window.height);
+    setAppImage(getIcon(state.traySettings ? state.traySettings.isActive : false));
+};
+ipcMain.on('update-window', (event, args) => {
+    const settings = args[0];
+    if (settings) {
+        state.window =  { ...state.window, ...settings };
+        reloadWindowSettings();
+    }
+});
