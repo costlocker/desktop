@@ -37,4 +37,4 @@ deploy:
     force_update: true
     on:
       appveyor_repo_tag: true
-      # branch: master
+      branch: master
