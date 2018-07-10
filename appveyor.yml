@@ -1,0 +1,34 @@
+image: Visual Studio 2017
+platform:
+  - x64
+
+cache:
+  - node_modules
+  - '%USERPROFILE%\.electron'
+
+init:
+  - git config --global core.autocrlf input
+
+environment:
+  GITHUB_TOKEN:
+    secure: E3NBpaH+w3/Ci4z2IihhM6BtbZ4/4YZ8y5XLoJDnneK4+HhhSCCMdI2kDOdyAtCl
+
+install:
+- ps: Install-Product node 8 x64
+- npm install
+
+build_script:
+  - npm run package-win64
+
+test: off
+
+before_deploy:
+  - 7z a win-x64-$APPVEYOR_REPO_TAG_NAME.zip release-builds/Costlocker-win32-x64
+deploy:
+  - provider: GitHub
+    artifact: win-x64-$APPVEYOR_REPO_TAG_NAME.zip
+    draft: false
+    prerelease: true
+    on:
+      appveyor_repo_tag: true
+      # branch: master
