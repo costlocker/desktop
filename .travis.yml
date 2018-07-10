@@ -18,12 +18,13 @@ script:
   - npm run package-$TRAVIS_OS_NAME
   - ls -lA release-builds
 
-after_success:
-  - |
+before_deploy: |
+  (
     cd release-builds
     mv Costlocker* Costlocker
     tar -czf "$TRAVIS_OS_NAME-$TRAVIS_TAG.tar.gz" Costlocker
     ls -lA
+  )
 
 deploy:
   provider: releases
@@ -32,4 +33,3 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    branch: master
