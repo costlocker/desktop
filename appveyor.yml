@@ -27,8 +27,11 @@ before_deploy:
 deploy:
   - provider: GitHub
     artifact: win-x64-$APPVEYOR_REPO_TAG_NAME.zip
+    auth_token: 
+      secure: E3NBpaH+w3/Ci4z2IihhM6BtbZ4/4YZ8y5XLoJDnneK4+HhhSCCMdI2kDOdyAtCl
     draft: false
     prerelease: true
+    force_update: true
     on:
       appveyor_repo_tag: true
       # branch: master
