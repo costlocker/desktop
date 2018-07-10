@@ -1,6 +1,7 @@
 image: Visual Studio 2017
 platform:
   - x64
+  - x86
 
 skip_non_tags: true # temporarily until github upload is fixed
 
@@ -12,15 +13,15 @@ init:
   - git config --global core.autocrlf input
 
 install:
-- ps: Install-Product node 8 x64
+- ps: Install-Product node 8 $env:PLATFORM
 - npm install
 
 build_script:
-  - npm run package-win64
+  - npm run "package-win-%PLATFORM%"
 
 after_build:
-  - ps: Rename-Item -Path release-builds\Costlocker-win32-x64 -NewName Costlocker
-  - 7z a win-x64-%APPVEYOR_REPO_TAG_NAME%.zip %APPVEYOR_BUILD_FOLDER%\release-builds\Costlocker
+  - ps: Get-ChildItem "release-builds\Costlocker-win32-*" | Rename-Item -NewName Costlocker
+  - 7z a win-%PLATFORM%-%APPVEYOR_REPO_TAG_NAME%.zip %APPVEYOR_BUILD_FOLDER%\release-builds\Costlocker
 
 test: off
 

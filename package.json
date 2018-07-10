@@ -7,8 +7,8 @@
   "scripts": {
     "start": "electron .",
     "package-osx": "electron-packager ./ --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
-    "package-win32": ".\\node_modules\\.bin\\electron-rebuild.cmd && electron-packager ./ Costlocker --overwrite --asar --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Costlocker\"",
-    "package-win64": ".\\node_modules\\.bin\\electron-rebuild.cmd && electron-packager ./ Costlocker --overwrite --asar --platform=win32 --arch=x64 --icon=assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Costlocker\"",
+    "package-win-x86": ".\\node_modules\\.bin\\electron-rebuild.cmd && electron-packager ./ Costlocker --overwrite --asar --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Costlocker\"",
+    "package-win-x64": ".\\node_modules\\.bin\\electron-rebuild.cmd && electron-packager ./ Costlocker --overwrite --asar --platform=win32 --arch=x64 --icon=assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Costlocker\"",
     "package-linux": "electron-packager ./ Costlocker --overwrite --asar --platform=linux --arch=x64 --icon=assets/icons/png/1024x2014.png --prune=true --out=release-builds"
   },
   "devDependencies": {
