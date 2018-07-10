@@ -24,3 +24,12 @@ script:
 
 before_cache:
   - rm -rf $HOME/.cache/electron-builder/wine
+
+before_deploy: bin/zip-release $TRAVIS_OS_NAME-$TRAVIS_TAG
+deploy:
+  provider: releases
+  api_key: $GITHUB_TOKEN
+  file: release-builds/$TRAVIS_OS_NAME-$TRAVIS_TAG.tar.gz
+  skip_cleanup: true
+  on:
+    tags: true
