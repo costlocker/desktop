@@ -115,7 +115,7 @@ function createWindow () {
 }
 
 const openApp = () => {
-    if (mainWindow === null) {
+    if (!mainWindow) {
         createWindow();
     } else if (mainWindow.isMinimized()) {
         mainWindow.restore();
@@ -180,7 +180,7 @@ app.on('window-all-closed', function () {
   }
 });
 app.on('activate', function () {
-  if (mainWindow === null) {
+  if (!mainWindow) {
     createWindow();
   }
 });
