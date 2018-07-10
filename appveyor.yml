@@ -3,8 +3,6 @@ platform:
   - x64
   - x86
 
-skip_non_tags: true # temporarily until github upload is fixed
-
 cache:
   - node_modules
   - '%USERPROFILE%\.electron'
