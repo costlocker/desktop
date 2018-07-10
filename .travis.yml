@@ -18,7 +18,13 @@ script:
   - npm run package-$TRAVIS_OS_NAME
   - ls -lA release-builds
 
-before_deploy: bin/zip-release $TRAVIS_OS_NAME-$TRAVIS_TAG
+after_success:
+  - |
+    cd release-builds
+    mv Costlocker* Costlocker
+    tar -czf "$TRAVIS_OS_NAME-$TRAVIS_TAG.tar.gz" Costlocker
+    ls -lA
+
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
