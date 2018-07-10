@@ -19,7 +19,8 @@ build_script:
   - npm run package-win64
 
 after_build:
-  - 7z a win-x64-%APPVEYOR_REPO_TAG_NAME%.zip %APPVEYOR_BUILD_FOLDER%\release-builds\Costlocker-win32-x64
+  - ps: Rename-Item -Path release-builds\Costlocker-win32-x64 -NewName Costlocker
+  - 7z a win-x64-%APPVEYOR_REPO_TAG_NAME%.zip %APPVEYOR_BUILD_FOLDER%\release-builds\Costlocker
 
 test: off
 
