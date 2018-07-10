@@ -39,7 +39,7 @@ npm install
 npm start
 
 # release
-npm run package-mac
+npm run package-osx
 npm run package-linux
 npm run package-win32
 npm run package-win64
