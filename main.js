@@ -1,7 +1,7 @@
-const { app, BrowserWindow, Menu, Tray, systemPreferences, ipcMain, Notification } = require('electron');
+const { app, BrowserWindow, systemPreferences, ipcMain, Notification } = require('electron');
 const desktopIdle = require('desktop-idle');
 
-let mainWindow, tray;
+let mainWindow;
 const state = {
     traySettings: null,
     trayInterval: null,
@@ -19,69 +19,23 @@ const state = {
 function getIcon(isActive) {
     let icon;
     if (process.platform == 'linux') { 
-        icon = isActive ? 'png/blue.png' : `png/${state.window.theme || 'white'}.png`;
-    } else if (process.platform == 'win32') { 
-        if (!state.window.theme) {
-            state.window.theme = systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black';
-        }
+        icon = isActive ? 'png/blue.png' : `png/${state.window.theme || 'black'}.png`;
+    } else if (process.platform == 'win32') {
+        const theme = 
+            state.window.theme ||
+            (systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black');
         icon = isActive ? 'win/icon.ico' : `win/${state.window.theme}.ico`;
     } else {
-        icon = isActive ? 'png/activeTemplate.png' : 'png/inactive.png';
+        const theme =
+            state.window.theme ||
+            (systemPreferences.isDarkMode() ? 'white' : 'black');
+        icon = isActive ? 'png/blue.png' : `png/${theme}.png`;
     }
     return getFile(`assets/icons/${icon}`);
 }
 
 function getFile(path) {
     return `${__dirname}/${path}`;
-}
-
-function setWindowPosition() {
-    if (!mainWindow) {
-        return;
-    }
-    const position = getWindowPosition();
-    if (position.x !== undefined) {
-        mainWindow.setPosition(position.x, position.y);
-    }
-}
-
-function getWindowPosition() {
-    if (process.platform == 'linux') {
-        return { center: true };
-    }
-    const screen = require('electron').screen;
-    let position = mainWindow && process.platform == 'win32'
-        ? screen.getCursorScreenPoint() : tray.getBounds();
-    const primarySize = screen.getPrimaryDisplay().workAreaSize; // Todo: this uses primary screen, it should use current
-    const verticalPosition = position.y >= primarySize.height / 2 ? 'bottom' : 'top';
-    const horizontalPosition = position.x >= primarySize.width / 2 ? 'right' : 'left';
-    return {
-        x: getX(),
-        y: getY()
-    };
-
-    function getX() {
-        // Find the horizontal bounds if the window were positioned normally
-        const horizBounds = {
-            left: position.x - state.window.width / 2,
-            right: position.x + state.window.width / 2
-        }
-        // If the window crashes into the side of the screem, reposition
-        if (horizontalPosition == 'left') {
-            return horizBounds.left <= state.window.padding
-                ? (position.x + 2 * state.window.padding)
-                : horizBounds.left;
-        } else {
-            return horizBounds.right >= primarySize.width
-                ? primarySize.width - state.window.padding - state.window.width
-                : horizBounds.right - state.window.width;
-        }
-    }
-    function getY() {
-        return verticalPosition == 'bottom'
-            ? Math.max(state.window.padding, position.y - state.window.height - state.window.padding)
-            : position.y + state.window.padding;
-    }
 }
 
 function hideApp() {
@@ -95,18 +49,21 @@ function quitApp() {
 }
 
 function createWindow () {
+  const icon = getIcon(false);
   mainWindow = new BrowserWindow({
     width: state.window.width,
     height: state.window.height,
-    frame: false,
+    frame: true,
     maximizable: false,
     fullscreenable: false,
     resizable: false,
-    skipTaskbar: true,
-    ...getWindowPosition(),
-    icon: getFile('assets/icons/png/1024x1024.png'),
+    skipTaskbar: false,
+    movable: true,
+    center: true,
+    icon: icon,
     backgroundColor: '#f2f2f2'
   });
+  setAppImage(icon);
   mainWindow.loadFile(getFile('index.html'));
   mainWindow.on('closed', function () {
     mainWindow = null;
@@ -119,10 +76,8 @@ const openApp = () => {
         createWindow();
     } else if (mainWindow.isMinimized()) {
         mainWindow.restore();
-        setWindowPosition();
     } else {
         mainWindow.focus();
-        setWindowPosition();
     }
 }
 
@@ -134,45 +89,7 @@ const toggleApp = () => {
     }
 }
 
-function createTray () {
-  tray = new Tray(getIcon());
-  tray.setToolTip('Costlocker');
-  tray.on('click', toggleApp);
-  tray.on('double-click', toggleApp);
-  tray.on('right-click', toggleApp);
-  tray.setContextMenu(Menu.buildFromTemplate([
-    {
-        label: 'Open',
-        click: openApp,
-    },
-    {
-        label: 'Minimize',
-        click: hideApp,
-    },
-    {
-        type: 'separator'
-    },
-    {
-        label: 'Quit',
-        click: quitApp,
-    },
-    {
-        type: 'separator'
-    },
-    {
-        label: 'About',
-        click: () => require('electron').shell.openExternal('https://costlocker.com?utm_source=desktop'),
-    },
-  ]))
-};
-
-app.on('ready', () => {
-    createTray();
-    createWindow();
-    if (app.dock) {
-        app.dock.hide();
-    }
-});
+app.on('ready', createWindow);
 app.on('window-all-closed', function () {
   const isNotMacOS = process.platform !== 'darwin';
   if (isNotMacOS) {
@@ -203,10 +120,15 @@ const checkIdleTime = () => {
 };
 
 const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
-const setAppImage = (image) => tray.setImage(image);
+const setAppImage = (image) => {
+    if (app.dock) {
+        app.dock.setIcon(image);
+    } else {
+        mainWindow.setIcon(image);
+    }
+};
 const setAppTitle = (title) => {
-    tray.setTitle(title);
-    tray.setToolTip(title && title.length ? title : 'Costlocker');
+    mainWindow.setTitle(title && title.length ? title : 'Costlocker');
 };
 ipcMain.on('update-tray', (event, args) => {
     state.traySettings = args[0];
