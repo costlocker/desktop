@@ -6,7 +6,7 @@ We recommend to use [Costlocker from App Store](https://blog.costlocker.com/45af
 
 ## Usage
 
-1. Download binary from releases
+1. [Download binary from releases](https://github.com/costlocker/desktop/releases)
 1. Unzip the file
 1. Create shortcut
     * `Costlocker.exe` on Windows
@@ -14,20 +14,25 @@ We recommend to use [Costlocker from App Store](https://blog.costlocker.com/45af
     * move `Costlocker.app` to Applications on Mac
 1. Execute binary _(might cause warnings)_
 
-![Windows 10](https://user-images.githubusercontent.com/7994022/42493819-aa900fc4-841e-11e8-8e53-01c9e46ab148.png)
-
 #### Platform limitations
 
-* _Mac_ - app is opened by right click on tray icon, left click shows menu
 * _Windows_ - might not work on older systems _(`Connection timed-out` error)_
-* _Linux_ - centered window position, click on tray always opens menu
 
 ## Changelog
+
+#### 2018.07.13
+
+* taskbar/dock instead of tray
+* movable window with frame _(minimize/close buttons)_
+
+![Windows 10 - taskbar](https://user-images.githubusercontent.com/7994022/42687619-a8a293e4-8699-11e8-9228-5ddabb340c2a.png)
 
 #### 2018.07.10
 
 * tray integration, window settings, idle time detection, reminder to track time
 * app binaries without installer (Windows, Linux, Mac)
+
+![Windows 10 - tray](https://user-images.githubusercontent.com/7994022/42493819-aa900fc4-841e-11e8-8e53-01c9e46ab148.png)
 
 ---
 
