@@ -20,6 +20,10 @@ We recommend to use [Costlocker from App Store](https://blog.costlocker.com/45af
 
 ## Changelog
 
+#### 2018.07.16
+
+* _Windows:_ fix loading application icon
+
 #### 2018.07.13
 
 * taskbar/dock instead of tray

@@ -1,7 +1,7 @@
 {
   "name": "costlocker-desktop",
   "productName": "Costlocker",
-  "version": "2018.07.13",
+  "version": "2018.07.16",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
