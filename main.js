@@ -24,7 +24,7 @@ function getIcon(isActive) {
         const theme = 
             state.window.theme ||
             (systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black');
-        icon = isActive ? 'win/icon.ico' : `win/${state.window.theme}.ico`;
+        icon = isActive ? 'win/icon.ico' : `win/${theme}.ico`;
     } else {
         const theme =
             state.window.theme ||
