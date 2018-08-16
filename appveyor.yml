@@ -6,6 +6,7 @@ platform:
 cache:
   - node_modules
   - '%USERPROFILE%\.electron'
+  - '%LOCALAPPDATA%\electron-builder'
 
 init:
   - git config --global core.autocrlf input
@@ -18,7 +19,6 @@ build_script:
   - npm run "package-win-%PLATFORM%"
 
 after_build:
-  - dir dist
   - ps: Get-ChildItem "dist\Costlocker*.exe" | Rename-Item -NewName { $_.Name -replace ' ','-' }
   - dir dist
 
