@@ -18,12 +18,12 @@ build_script:
   - npm run "package-win-%PLATFORM%"
 
 after_build:
-  - 7z a win-%PLATFORM%-%APPVEYOR_REPO_TAG_NAME%.zip %APPVEYOR_BUILD_FOLDER%\dist
+  - dir dist
 
 test: off
 
 artifacts:
-  - path: '*.zip'
+  - path: 'dist\*.exe'
     name: win-release
   
 deploy:
