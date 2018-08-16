@@ -19,6 +19,8 @@ build_script:
 
 after_build:
   - dir dist
+  - ps: Get-ChildItem "dist\Costlocker*.exe" | Rename-Item -NewName { $_.Name -replace ' ','-' }
+  - dir dist
 
 test: off
 
