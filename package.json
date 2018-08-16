@@ -25,8 +25,7 @@
     "appId": "com.github.costlocker.desktop",
     "win": {
       "icon": "assets/icons/win/icon.ico",
-      "publisherName": "Costlocker SE",
-      "certificateSubjectName": "Costlocker SE"
+      "publisherName": "Costlocker SE"
     }
   }
 }
