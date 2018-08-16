@@ -1,22 +1,32 @@
 {
   "name": "costlocker-desktop",
   "productName": "Costlocker",
+  "description": "Costlocker Tracking Desktop App",
+  "author": "Costlocker",
   "version": "2018.07.16",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "package-osx": "electron-packager ./ --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
-    "package-win-x86": ".\\node_modules\\.bin\\electron-rebuild.cmd && electron-packager ./ Costlocker --overwrite --asar --platform=win32 --arch=ia32 --icon=assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Costlocker\"",
-    "package-win-x64": ".\\node_modules\\.bin\\electron-rebuild.cmd && electron-packager ./ Costlocker --overwrite --asar --platform=win32 --arch=x64 --icon=assets/icons/win/icon.ico --prune=true --out=release-builds --version-string.CompanyName=CE --version-string.FileDescription=CE --version-string.ProductName=\"Costlocker\"",
+    "package-win-x86": "build --win portable --ia32",
+    "package-win-x64": "build --win portable --x64",
     "package-linux": "electron-packager ./ Costlocker --overwrite --asar --platform=linux --arch=x64 --icon=assets/icons/png/1024x2014.png --prune=true --out=release-builds"
   },
   "devDependencies": {
     "electron": "^2.0.2",
-    "electron-packager": "^12.1.0",
-    "electron-rebuild": "^1.8.1"
+    "electron-builder": "^20.28.1",
+    "electron-packager": "^12.1.0"
   },
   "dependencies": {
     "desktop-idle": "git+https://github.com/CudoVentures/node-desktop-idle.git#prebuild"
+  },
+  "build": {
+    "appId": "com.github.costlocker.desktop",
+    "win": {
+      "icon": "assets/icons/win/icon.ico",
+      "publisherName": "Costlocker SE",
+      "certificateSubjectName": "Costlocker SE"
+    }
   }
 }

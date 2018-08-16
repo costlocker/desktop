@@ -18,8 +18,7 @@ build_script:
   - npm run "package-win-%PLATFORM%"
 
 after_build:
-  - ps: Get-ChildItem "release-builds\Costlocker-win32-*" | Rename-Item -NewName Costlocker
-  - 7z a win-%PLATFORM%-%APPVEYOR_REPO_TAG_NAME%.zip %APPVEYOR_BUILD_FOLDER%\release-builds\Costlocker
+  - 7z a win-%PLATFORM%-%APPVEYOR_REPO_TAG_NAME%.zip %APPVEYOR_BUILD_FOLDER%\dist
 
 test: off
 
