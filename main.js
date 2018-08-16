@@ -89,11 +89,11 @@ const toggleApp = () => {
     }
 }
 
+if (process.platform == 'win32') {
+    app.setAppUserModelId('com.github.costlocker.desktop');
+}
 app.on('ready', () => {
     createWindow();
-    if (process.platform == 'win32') {
-        app.setAppUserModelId('com.github.costlocker.desktop');
-    }
 });
 app.on('window-all-closed', function () {
   const isNotMacOS = process.platform !== 'darwin';
