@@ -10,6 +10,7 @@
     "start": "electron .",
     "package-osx": "electron-packager ./ --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
     "package-win-x86": "build --win portable --ia32 --publish never",
+    "package-win-x86-nsis": "build --win nsis --ia32 --publish never",
     "package-win-x64": "build --win portable --x64 --publish never",
     "package-linux": "electron-packager ./ Costlocker --overwrite --asar --platform=linux --arch=x64 --icon=assets/icons/png/1024x2014.png --prune=true --out=release-builds"
   },
@@ -26,6 +27,13 @@
     "win": {
       "icon": "assets/icons/win/icon.ico",
       "publisherName": "Costlocker SE"
+    },
+    "nsis": {
+      "installerIcon": "assets/icons/win/icon.ico",
+      "createStartMenuShortcut": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Costlocker",
+      "artifactName": "costlocker-installer-${os}-${arch}-${version}.${ext}"
     }
   }
 }
