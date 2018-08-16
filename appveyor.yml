@@ -5,7 +5,7 @@ platform:
 
 cache:
   - node_modules
-  - '%USERPROFILE%\.electron'
+  - '%LOCALAPPDATA%\electron'
   - '%LOCALAPPDATA%\electron-builder'
 
 init:
