@@ -79,7 +79,7 @@ const platforms = {
         getTrayIcon: isActive => isActive ? 'mac/activeTemplate.png' : 'mac/inactive.png',
         setTrackerStatus: (settings) => {
             tray.setImage(settings.trayIcon);
-            setTimeout(() => app.dock.setIcon(settings.windowIcon), 100);
+            setTimeout(() => app.dock.setIcon(settings.windowIcon), 200);
         },
     })
 }
