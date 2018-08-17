@@ -210,11 +210,7 @@ app.on('ready', () => {
     createTray();
     openApp();
 });
-app.on('activate', function () {
-  if (!mainWindow) {
-    createWindow();
-  }
-});
+app.on('before-quit', () => state.isQuitting = true);
 
 ipcMain.on('app-show', openApp);
 ipcMain.on('app-hide', hideApp);
