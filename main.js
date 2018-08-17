@@ -8,6 +8,7 @@ const state = {
     reminderTimeout: null,
     idleTimeSeconds: null,
     detectIdletime: null,
+    isQuitting: false,
     window: {
         theme: null,
         width: 480,
@@ -23,9 +24,6 @@ const platforms = {
             skipTaskbar: true, // weird behavior on ElementaryOS if value is false (more info in commit)
         },
         init: () => null,
-        onReady: () => {
-            createTray();
-        },
         onOpen: () => {
             if (!mainWindow) {
                 return;
@@ -33,12 +31,6 @@ const platforms = {
             setTimeout(() => mainWindow.setSkipTaskbar(false), 200);
         },
         onHide: () => {
-            if (!mainWindow) {
-                return;
-            }
-            mainWindow.setSkipTaskbar(true);
-        },
-        onWindowClose: () => {
             if (!mainWindow) {
                 return;
             }
@@ -53,11 +45,9 @@ const platforms = {
             skipTaskbar: false,
         },
         init: () => app.setAppUserModelId('com.github.costlocker.desktop'),
-        onReady: () => null,
-        onOpen: () => null,
-        onHide: () => null,
-        onWindowClose: quitApp => quitApp(),
-        getIcon: () => 'win/icon.ico',
+        onOpen: () => mainWindow ? mainWindow.setSkipTaskbar(false) : null,
+        onHide: () => mainWindow ? mainWindow.setSkipTaskbar(true) : null,
+        getIcon: () => 'win/icon.ico', // browser window icon is always icon from costlocker.exe
         setTrackerStatus: (isActive) => {
             if (!mainWindow) {
                 return;
@@ -67,6 +57,10 @@ const platforms = {
                 isActive ? "Tracking..." : ""
             );
             mainWindow.setProgressBar(isActive ? 1 : 0);
+            const theme = 
+                state.window.theme ||
+                (systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black');
+            tray.setImage(getFile(isActive ? 'assets/icons/png/blue.png' : `assets/icons/png/${theme}.png`))
         },
     }),
     darwin: () => ({
@@ -77,9 +71,6 @@ const platforms = {
         init: () => {
             app.dock.hide();
         },
-        onReady: () => {
-            createTray();
-        },
         onOpen: (icon) => {
             app.dock.show();
             setTimeout(
@@ -88,9 +79,6 @@ const platforms = {
             );
         },
         onHide: () => {
-            app.dock.hide();
-        },
-        onWindowClose: () => {
             app.dock.hide();
         },
         getIcon: isActive => {
@@ -126,6 +114,7 @@ function hideApp(event) {
 }
 
 function quitApp() {
+    state.isQuitting = true;
     app.quit();
 }
 
@@ -145,6 +134,13 @@ function createWindow () {
   reloadTrackerStatus(false);
   mainWindow.loadFile(getFile('index.html'));
   mainWindow.on('minimize', hideApp);
+  mainWindow.on('close', function (event) {
+    if (state.isQuitting) {
+        return;
+    }
+    event.preventDefault();
+    hideApp();
+  });
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
@@ -207,11 +203,8 @@ const toggleApp = () => {
 
 platform.init();
 app.on('ready', () => {
-    platform.onReady();
+    createTray();
     openApp();
-});
-app.on('window-all-closed', function () {
-    platform.onWindowClose(quitApp);
 });
 app.on('activate', function () {
   if (!mainWindow) {
