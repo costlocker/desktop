@@ -21,18 +21,27 @@ const platforms = {
         init: () => null,
         getIcon: isActive =>
             isActive ? 'png/blue.png' : `png/${state.window.theme || 'black'}.png`,
-        setAppImage: image => mainWindow.setIcon(image),
+        setTrackerStatus: (isActive, icon) => {
+            if (!mainWindow) {
+                return;
+            }
+            mainWindow.setIcon(icon);
+        },
         onWindowClose: quitApp => quitApp(),
     }),
     win32: () => ({
         init: () => app.setAppUserModelId('com.github.costlocker.desktop'),
-        getIcon: isActive => {
-            const theme = 
-                state.window.theme ||
-                (systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black');
-            return isActive ? 'win/icon.ico' : `win/${theme}.ico`;
+        getIcon: () => 'win/icon.ico',
+        setTrackerStatus: (isActive) => {
+            if (!mainWindow) {
+                return;
+            }
+            mainWindow.setOverlayIcon(
+                isActive ? getFile(`assets/icons/png/16x16.png`) : null,
+                isActive ? "Tracking..." : ""
+            );
+            mainWindow.setProgressBar(isActive ? 1 : 0);
         },
-        setAppImage: image => mainWindow.setIcon(image),
         onWindowClose: quitApp => quitApp(),
     }),
     darwin: () => ({
@@ -43,7 +52,10 @@ const platforms = {
                 (systemPreferences.isDarkMode() ? 'white' : 'black');
             return isActive ? 'png/blue.png' : `png/${theme}.png`;
         },
-        setAppImage: image => app.dock.setIcon(image),
+        setTrackerStatus: (isActive, icon) => {
+            app.dock.setIcon(icon);
+            app.dock.setBadge(isActive ? ' ' : '');
+        },
         onWindowClose: () => null,
     })
 }
@@ -68,7 +80,6 @@ function quitApp() {
 }
 
 function createWindow () {
-  const icon = getIcon(false);
   mainWindow = new BrowserWindow({
     width: state.window.width,
     height: state.window.height,
@@ -79,10 +90,10 @@ function createWindow () {
     skipTaskbar: false,
     movable: true,
     center: true,
-    icon: icon,
+    icon: getIcon(false),
     backgroundColor: '#f2f2f2'
   });
-  setAppImage(icon);
+  reloadTrackerStatus(false);
   mainWindow.loadFile(getFile('index.html'));
   mainWindow.on('closed', function () {
     mainWindow = null;
@@ -139,9 +150,7 @@ const checkIdleTime = () => {
 };
 
 const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
-const setAppImage = (image) => {
-    platform.setAppImage(image);
-};
+const reloadTrackerStatus = (isActive) => platform.setTrackerStatus(isActive, getIcon(isActive));
 const setAppTitle = (title) => {
     if (mainWindow) {
         mainWindow.setTitle(title && title.length ? title : 'Costlocker');
@@ -152,7 +161,7 @@ ipcMain.on('update-tray', (event, args) => {
     if (state.trayInterval) {
         clearInterval(state.trayInterval);
     }
-    setAppImage(getIcon(state.traySettings.isActive));
+    reloadTrackerStatus(state.traySettings.isActive);
     if (!state.traySettings.isActive) {
         setAppTitle('');
         return;
@@ -213,7 +222,7 @@ ipcMain.on('update-idletime', (event, args) => {
 const reloadWindowSettings = () => {
     openApp();
     mainWindow.setSize(state.window.width, state.window.height);
-    setAppImage(getIcon(state.traySettings ? state.traySettings.isActive : false));
+    reloadTrackerStatus(state.traySettings ? state.traySettings.isActive : false);
 };
 ipcMain.on('update-window', (event, args) => {
     const settings = args[0];
