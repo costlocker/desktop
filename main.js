@@ -98,7 +98,7 @@ function hideApp(event) {
         event.preventDefault();
     }
     if (mainWindow) {
-        mainWindow.minimize();
+        mainWindow.hide();
     }
     platform.onHide();
 }
@@ -177,6 +177,8 @@ const openApp = () => {
         createWindow();
     } else if (mainWindow.isMinimized()) {
         mainWindow.restore();
+    } else if (!mainWindow.isVisible()) {
+        mainWindow.show();
     } else {
         mainWindow.focus();
     }
@@ -185,7 +187,7 @@ const openApp = () => {
 }
 
 const toggleApp = () => {
-    if (mainWindow && mainWindow.isVisible && !mainWindow.isMinimized()) {
+    if (mainWindow && mainWindow.isVisible() && !mainWindow.isMinimized()) {
         hideApp();
     } else {
         openApp();
