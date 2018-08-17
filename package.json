@@ -33,6 +33,7 @@
       "allowToChangeInstallationDirectory": true,
       "createStartMenuShortcut": true,
       "createDesktopShortcut": true,
+      "include": "nsis/installer.nsh",
       "shortcutName": "Costlocker",
       "artifactName": "win-installer-x86-${version}.${ext}"
     }
