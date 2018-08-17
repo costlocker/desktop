@@ -143,7 +143,9 @@ const setAppImage = (image) => {
     platform.setAppImage(image);
 };
 const setAppTitle = (title) => {
-    mainWindow.setTitle(title && title.length ? title : 'Costlocker');
+    if (mainWindow) {
+        mainWindow.setTitle(title && title.length ? title : 'Costlocker');
+    }
 };
 ipcMain.on('update-tray', (event, args) => {
     state.traySettings = args[0];
