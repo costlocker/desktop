@@ -16,22 +16,41 @@ const state = {
     }
 };
 
+const platforms = {
+    linux: () => ({
+        init: () => null,
+        getIcon: isActive =>
+            isActive ? 'png/blue.png' : `png/${state.window.theme || 'black'}.png`,
+        setAppImage: image => mainWindow.setIcon(image),
+        onWindowClose: quitApp => quitApp(),
+    }),
+    win32: () => ({
+        init: () => app.setAppUserModelId('com.github.costlocker.desktop'),
+        getIcon: isActive => {
+            const theme = 
+                state.window.theme ||
+                (systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black');
+            return isActive ? 'win/icon.ico' : `win/${theme}.ico`;
+        },
+        setAppImage: image => mainWindow.setIcon(image),
+        onWindowClose: quitApp => quitApp(),
+    }),
+    darwin: () => ({
+        init: () => null,
+        getIcon: isActive => {
+            const theme =
+                state.window.theme ||
+                (systemPreferences.isDarkMode() ? 'white' : 'black');
+            return isActive ? 'png/blue.png' : `png/${theme}.png`;
+        },
+        setAppImage: image => app.dock.setIcon(image),
+        onWindowClose: () => null,
+    })
+}
+const platform = platforms[process.platform]();
+
 function getIcon(isActive) {
-    let icon;
-    if (process.platform == 'linux') { 
-        icon = isActive ? 'png/blue.png' : `png/${state.window.theme || 'black'}.png`;
-    } else if (process.platform == 'win32') {
-        const theme = 
-            state.window.theme ||
-            (systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black');
-        icon = isActive ? 'win/icon.ico' : `win/${theme}.ico`;
-    } else {
-        const theme =
-            state.window.theme ||
-            (systemPreferences.isDarkMode() ? 'white' : 'black');
-        icon = isActive ? 'png/blue.png' : `png/${theme}.png`;
-    }
-    return getFile(`assets/icons/${icon}`);
+    return getFile(`assets/icons/${platform.getIcon(isActive)}`);
 }
 
 function getFile(path) {
@@ -89,17 +108,12 @@ const toggleApp = () => {
     }
 }
 
-if (process.platform == 'win32') {
-    app.setAppUserModelId('com.github.costlocker.desktop');
-}
+platform.init();
 app.on('ready', () => {
     createWindow();
 });
 app.on('window-all-closed', function () {
-  const isNotMacOS = process.platform !== 'darwin';
-  if (isNotMacOS) {
-    app.quit();
-  }
+    platform.onWindowClose(quitApp);
 });
 app.on('activate', function () {
   if (!mainWindow) {
@@ -126,11 +140,7 @@ const checkIdleTime = () => {
 
 const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
 const setAppImage = (image) => {
-    if (app.dock) {
-        app.dock.setIcon(image);
-    } else {
-        mainWindow.setIcon(image);
-    }
+    platform.setAppImage(image);
 };
 const setAppTitle = (title) => {
     mainWindow.setTitle(title && title.length ? title : 'Costlocker');
