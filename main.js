@@ -133,7 +133,7 @@ const setAppImage = (image) => {
     }
 };
 const setAppTitle = (title) => {
-    mainWindow.setTitle(Notification.isSupported() ? 'Notifications supported' : 'NO notifications');
+    mainWindow.setTitle(title && title.length ? title : 'Costlocker');
 };
 ipcMain.on('update-tray', (event, args) => {
     state.traySettings = args[0];
@@ -173,15 +173,6 @@ ipcMain.on('update-reminder', (event, args) => {
         clearTimeout(state.reminderTimeout);
     }
     const seconds = args[0];
-    const notification = new Notification({
-        title: 'update-reminder',
-        body: `seconds: ${seconds}`,
-        closeButtonText: 'Close',
-    });
-    notification.on('click', () => {
-        openApp();
-    });
-    notification.show();
     if (!seconds) {
         return;
     }
