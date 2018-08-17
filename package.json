@@ -29,6 +29,8 @@
     },
     "nsis": {
       "installerIcon": "assets/icons/win/icon.ico",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
       "createStartMenuShortcut": true,
       "createDesktopShortcut": true,
       "shortcutName": "Costlocker",
