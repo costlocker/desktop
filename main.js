@@ -36,8 +36,9 @@ const platforms = {
             }
             mainWindow.setSkipTaskbar(true);
         },
-        getIcon: isActive => isActive ? 'png/blue.png' : `png/${state.window.theme || 'black'}.png`,
-        setTrackerStatus: (isActive) => tray.setImage(getFile(isActive ? 'assets/icons/png/blue.png' : 'assets/icons/png/white.png')),
+        getWindowIcon: () => 'png/blue.png',
+        getTrayIcon: isActive => isActive ? 'png/blue.png' : `png/${state.window.theme || 'white'}.png`,
+        setTrackerStatus: (settings) => tray.setImage(settings.trayIcon),
     }),
     win32: () => ({
         windowOptions: {
@@ -47,20 +48,19 @@ const platforms = {
         init: () => app.setAppUserModelId('com.github.costlocker.desktop'),
         onOpen: () => mainWindow ? mainWindow.setSkipTaskbar(false) : null,
         onHide: () => mainWindow ? mainWindow.setSkipTaskbar(true) : null,
-        getIcon: () => 'win/icon.ico', // browser window icon is always icon from costlocker.exe
-        setTrackerStatus: (isActive) => {
-            if (!mainWindow) {
-                return;
-            }
-            mainWindow.setOverlayIcon(
-                isActive ? getFile(`assets/icons/png/16x16.png`) : null,
-                isActive ? "Tracking..." : ""
-            );
-            mainWindow.setProgressBar(isActive ? 1 : 0);
+        getWindowIcon: () => 'assets/icons/win/icon.ico',
+        getTrayIcon: (isActive) => {
             const theme = 
                 state.window.theme ||
                 (systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black');
-            tray.setImage(getFile(isActive ? 'assets/icons/png/blue.png' : `assets/icons/png/${theme}.png`))
+            return isActive ? 'assets/icons/png/blue.png' : `assets/icons/png/${theme}.png`;
+        },
+        setTrackerStatus: (settings) => {
+            tray.setImage(settings.trayIcon);
+            if (!mainWindow) {
+                return;
+            }
+            mainWindow.setProgressBar(settings.isActive ? 1 : 0);
         },
     }),
     darwin: () => ({
@@ -68,35 +68,25 @@ const platforms = {
             frame: false,
             skipTaskbar: false,
         },
-        init: () => {
-            app.dock.hide();
-        },
-        onOpen: (icon) => {
+        init: () => null,
+        onOpen: () => {
             app.dock.show();
-            setTimeout(
-                () => app.dock.setIcon(icon),
-                100
-            );
         },
         onHide: () => {
             app.dock.hide();
         },
-        getIcon: isActive => {
-            const theme =
-                state.window.theme ||
-                (systemPreferences.isDarkMode() ? 'white' : 'black');
-            return isActive ? 'png/blue.png' : `png/${theme}.png`;
-        },
-        setTrackerStatus: (isActive, icon) => {
-            app.dock.setIcon(icon);
-            tray.setImage(getFile(isActive ? 'assets/icons/mac/activeTemplate.png' : 'assets/icons/mac/inactive.png'));
+        getWindowIcon: () => `png/blue.png`,
+        getTrayIcon: isActive => isActive ? 'mac/activeTemplate.png' : 'mac/inactive.png',
+        setTrackerStatus: (settings) => {
+            tray.setImage(settings.trayIcon);
+            setTimeout(() => app.dock.setIcon(settings.windowIcon), 100);
         },
     })
 }
 const platform = platforms[process.platform]();
 
-function getIcon(isActive) {
-    return getFile(`assets/icons/${platform.getIcon(isActive)}`);
+function getIcon(imagePath) {
+    return getFile(`assets/icons/${imagePath}`);
 }
 
 function getFile(path) {
@@ -128,10 +118,10 @@ function createWindow () {
     ...platform.windowOptions,
     movable: true,
     center: true,
-    icon: getIcon(false),
+    icon: getIcon(platform.getWindowIcon()),
     backgroundColor: '#f2f2f2'
   });
-  reloadTrackerStatus(false);
+  reloadTrackerStatus();
   mainWindow.loadFile(getFile('index.html'));
   mainWindow.on('minimize', hideApp);
   mainWindow.on('close', function (event) {
@@ -151,7 +141,7 @@ function createTray () {
   if (tray) {
     return;
   }
-  tray = new Tray(getIcon());	
+  tray = new Tray(getIcon(platform.getTrayIcon()));	
   tray.setToolTip('Costlocker');	
   tray.on('click', toggleApp);	
   tray.on('double-click', toggleApp);	
@@ -190,7 +180,8 @@ const openApp = () => {
     } else {
         mainWindow.focus();
     }
-    platform.onOpen(getIcon(state.traySettings ? state.traySettings.isActive : false));
+    platform.onOpen();
+    reloadTrackerStatus();
 }
 
 const toggleApp = () => {
@@ -230,7 +221,14 @@ const checkIdleTime = () => {
 };
 
 const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
-const reloadTrackerStatus = (isActive) => platform.setTrackerStatus(isActive, getIcon(isActive));
+const reloadTrackerStatus = () => {
+    const isActive = state.traySettings ? state.traySettings.isActive : false;
+    platform.setTrackerStatus({
+        isActive: isActive,
+        windowIcon: getIcon(platform.getWindowIcon()),
+        trayIcon: getIcon(platform.getTrayIcon(isActive)),
+    });
+};
 const setAppTitle = (title) => {
     if (mainWindow) {
         mainWindow.setTitle(title && title.length ? title : 'Costlocker');
@@ -245,7 +243,7 @@ ipcMain.on('update-tray', (event, args) => {
     if (state.trayInterval) {
         clearInterval(state.trayInterval);
     }
-    reloadTrackerStatus(state.traySettings.isActive);
+    reloadTrackerStatus();
     if (!state.traySettings.isActive) {
         setAppTitle('');
         return;
@@ -306,7 +304,7 @@ ipcMain.on('update-idletime', (event, args) => {
 const reloadWindowSettings = () => {
     openApp();
     mainWindow.setSize(state.window.width, state.window.height);
-    reloadTrackerStatus(state.traySettings ? state.traySettings.isActive : false);
+    reloadTrackerStatus();
 };
 ipcMain.on('update-window', (event, args) => {
     const settings = args[0];
