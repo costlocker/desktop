@@ -166,7 +166,19 @@ function createTray () {
         type: 'separator'	
     },	
     {	
-        label: 'About',	
+        label: "Test notification",	
+        click: () => {
+            const notification = new Notification({
+                title: 'Test from Costlocker',
+                body: 'Don’t forget to track time',
+                closeButtonText: 'Close',
+            });
+            notification.on('click', toggleApp);
+            notification.show();
+        },	
+    },	
+    {	
+        label: `About (v${app.getVersion()})`,	
         click: () => require('electron').shell.openExternal('https://costlocker.com?utm_source=desktop'),	
     },	
   ]));
