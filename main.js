@@ -128,8 +128,7 @@ function createWindow () {
     if (state.isQuitting) {
         return;
     }
-    event.preventDefault();
-    hideApp();
+    hideApp(event);
   });
   mainWindow.on('closed', function () {
     mainWindow = null;
