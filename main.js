@@ -48,12 +48,12 @@ const platforms = {
         init: () => app.setAppUserModelId('com.github.costlocker.desktop'),
         onOpen: () => mainWindow ? mainWindow.setSkipTaskbar(false) : null,
         onHide: () => mainWindow ? mainWindow.setSkipTaskbar(true) : null,
-        getWindowIcon: () => 'assets/icons/win/icon.ico',
+        getWindowIcon: () => 'win/icon.ico',
         getTrayIcon: (isActive) => {
             const theme = 
                 state.window.theme ||
                 (systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black');
-            return isActive ? 'assets/icons/png/blue.png' : `assets/icons/png/${theme}.png`;
+            return isActive ? 'png/blue.png' : `png/${theme}.png`;
         },
         setTrackerStatus: (settings) => {
             tray.setImage(settings.trayIcon);
