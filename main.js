@@ -18,21 +18,40 @@ const state = {
 
 const platforms = {
     linux: () => ({
+        windowOptions: {
+            frame: true,
+            skipTaskbar: true, // weird behavior on ElementaryOS if value is false (more info in commit)
+        },
         init: () => null,
-        onReady: () => null,
-        onOpen: () => null,
-        onHide: () => null,
-        onWindowClose: quitApp => quitApp(),
-        getIcon: isActive =>
-            isActive ? 'png/blue.png' : `png/${state.window.theme || 'black'}.png`,
-        setTrackerStatus: (isActive, icon) => {
+        onReady: () => {
+            createTray();
+        },
+        onOpen: () => {
             if (!mainWindow) {
                 return;
             }
-            mainWindow.setIcon(icon);
+            setTimeout(() => mainWindow.setSkipTaskbar(false), 200);
         },
+        onHide: () => {
+            if (!mainWindow) {
+                return;
+            }
+            mainWindow.setSkipTaskbar(true);
+        },
+        onWindowClose: () => {
+            if (!mainWindow) {
+                return;
+            }
+            mainWindow.setSkipTaskbar(true);
+        },
+        getIcon: isActive => isActive ? 'png/blue.png' : `png/${state.window.theme || 'black'}.png`,
+        setTrackerStatus: (isActive) => tray.setImage(getFile(isActive ? 'assets/icons/png/blue.png' : 'assets/icons/png/white.png')),
     }),
     win32: () => ({
+        windowOptions: {
+            frame: true,
+            skipTaskbar: false,
+        },
         init: () => app.setAppUserModelId('com.github.costlocker.desktop'),
         onReady: () => null,
         onOpen: () => null,
@@ -51,6 +70,10 @@ const platforms = {
         },
     }),
     darwin: () => ({
+        windowOptions: {
+            frame: false,
+            skipTaskbar: false,
+        },
         init: () => {
             app.dock.hide();
         },
@@ -110,11 +133,10 @@ function createWindow () {
   mainWindow = new BrowserWindow({
     width: state.window.width,
     height: state.window.height,
-    frame: true,
     maximizable: false,
     fullscreenable: false,
     resizable: false,
-    skipTaskbar: false,
+    ...platform.windowOptions,
     movable: true,
     center: true,
     icon: getIcon(false),
