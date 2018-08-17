@@ -1,7 +1,7 @@
-const { app, BrowserWindow, systemPreferences, ipcMain, Notification } = require('electron');
+const { app, BrowserWindow, Menu, Tray, systemPreferences, ipcMain, Notification } = require('electron');
 const desktopIdle = require('desktop-idle');
 
-let mainWindow;
+let mainWindow, tray;
 const state = {
     traySettings: null,
     trayInterval: null,
@@ -19,6 +19,10 @@ const state = {
 const platforms = {
     linux: () => ({
         init: () => null,
+        onReady: () => null,
+        onOpen: () => null,
+        onHide: () => null,
+        onWindowClose: quitApp => quitApp(),
         getIcon: isActive =>
             isActive ? 'png/blue.png' : `png/${state.window.theme || 'black'}.png`,
         setTrackerStatus: (isActive, icon) => {
@@ -27,10 +31,13 @@ const platforms = {
             }
             mainWindow.setIcon(icon);
         },
-        onWindowClose: quitApp => quitApp(),
     }),
     win32: () => ({
         init: () => app.setAppUserModelId('com.github.costlocker.desktop'),
+        onReady: () => null,
+        onOpen: () => null,
+        onHide: () => null,
+        onWindowClose: quitApp => quitApp(),
         getIcon: () => 'win/icon.ico',
         setTrackerStatus: (isActive) => {
             if (!mainWindow) {
@@ -42,10 +49,27 @@ const platforms = {
             );
             mainWindow.setProgressBar(isActive ? 1 : 0);
         },
-        onWindowClose: quitApp => quitApp(),
     }),
     darwin: () => ({
-        init: () => null,
+        init: () => {
+            app.dock.hide();
+        },
+        onReady: () => {
+            createTray();
+        },
+        onOpen: (icon) => {
+            app.dock.show();
+            setTimeout(
+                () => app.dock.setIcon(icon),
+                100
+            );
+        },
+        onHide: () => {
+            app.dock.hide();
+        },
+        onWindowClose: () => {
+            app.dock.hide();
+        },
         getIcon: isActive => {
             const theme =
                 state.window.theme ||
@@ -54,9 +78,8 @@ const platforms = {
         },
         setTrackerStatus: (isActive, icon) => {
             app.dock.setIcon(icon);
-            app.dock.setBadge(isActive ? ' ' : '');
+            tray.setImage(getFile(isActive ? 'assets/icons/mac/activeTemplate.png' : 'assets/icons/mac/inactive.png'));
         },
-        onWindowClose: () => null,
     })
 }
 const platform = platforms[process.platform]();
@@ -69,10 +92,14 @@ function getFile(path) {
     return `${__dirname}/${path}`;
 }
 
-function hideApp() {
+function hideApp(event) {
+    if (event && event.preventDefault) {
+        event.preventDefault();
+    }
     if (mainWindow) {
         mainWindow.minimize();
     }
+    platform.onHide();
 }
 
 function quitApp() {
@@ -95,10 +122,46 @@ function createWindow () {
   });
   reloadTrackerStatus(false);
   mainWindow.loadFile(getFile('index.html'));
+  mainWindow.on('minimize', hideApp);
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
   mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('webview-devtools'));
+}
+
+function createTray () {
+  if (tray) {
+    return;
+  }
+  tray = new Tray(getIcon());	
+  tray.setToolTip('Costlocker');	
+  tray.on('click', toggleApp);	
+  tray.on('double-click', toggleApp);	
+  tray.on('right-click', toggleApp);	
+  tray.setContextMenu(Menu.buildFromTemplate([	
+    {	
+        label: 'Open',	
+        click: openApp,	
+    },	
+    {	
+        label: 'Minimize',	
+        click: hideApp,	
+    },	
+    {	
+        type: 'separator'	
+    },	
+    {	
+        label: 'Quit',	
+        click: quitApp,	
+    },	
+    {	
+        type: 'separator'	
+    },	
+    {	
+        label: 'About',	
+        click: () => require('electron').shell.openExternal('https://costlocker.com?utm_source=desktop'),	
+    },	
+  ]));
 }
 
 const openApp = () => {
@@ -109,6 +172,7 @@ const openApp = () => {
     } else {
         mainWindow.focus();
     }
+    platform.onOpen(getIcon(state.traySettings ? state.traySettings.isActive : false));
 }
 
 const toggleApp = () => {
@@ -121,7 +185,8 @@ const toggleApp = () => {
 
 platform.init();
 app.on('ready', () => {
-    createWindow();
+    platform.onReady();
+    openApp();
 });
 app.on('window-all-closed', function () {
     platform.onWindowClose(quitApp);
@@ -154,6 +219,10 @@ const reloadTrackerStatus = (isActive) => platform.setTrackerStatus(isActive, ge
 const setAppTitle = (title) => {
     if (mainWindow) {
         mainWindow.setTitle(title && title.length ? title : 'Costlocker');
+    }
+    if (tray) {
+        tray.setTitle(title);
+        tray.setToolTip(title && title.length ? title : 'Costlocker');
     }
 };
 ipcMain.on('update-tray', (event, args) => {
