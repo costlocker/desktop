@@ -1,6 +1,5 @@
 image: Visual Studio 2017
 platform:
-  #- x64
   - x86
 
 cache:
@@ -16,8 +15,7 @@ install:
 - npm install
 
 build_script:
-  - npm run "package-win-%PLATFORM%"
-  - npm run "package-win-%PLATFORM%-nsis"
+  - npm run "package-win-%PLATFORM%-installer"
 
 after_build:
   - ps: Get-ChildItem "dist\Costlocker*.exe" | Rename-Item -NewName { $_.Name -replace ' ','-' }
