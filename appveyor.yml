@@ -15,7 +15,7 @@ install:
 - npm install
 
 build_script:
-  - npm run "package-win-%PLATFORM%-installer"
+  - npm run package-win
 
 after_build:
   - dir dist

@@ -53,5 +53,5 @@ npm start
 # release
 npm run package-osx
 npm run package-linux
-npm run package-win-x86-installer
+npm run package-win
 ```
