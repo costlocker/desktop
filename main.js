@@ -24,18 +24,8 @@ const platforms = {
             skipTaskbar: true, // weird behavior on ElementaryOS if value is false (more info in commit)
         },
         init: () => null,
-        onOpen: () => {
-            if (!mainWindow) {
-                return;
-            }
-            setTimeout(() => mainWindow.setSkipTaskbar(false), 200);
-        },
-        onHide: () => {
-            if (!mainWindow) {
-                return;
-            }
-            mainWindow.setSkipTaskbar(true);
-        },
+        onOpen: () => mainWindow ? setTimeout(() => mainWindow.setSkipTaskbar(false), 200) : null,
+        onHide: () => mainWindow ? mainWindow.setSkipTaskbar(true) : null,
         getWindowIcon: () => 'png/blue.png',
         getTrayIcon: isActive => isActive ? 'png/blue.png' : `png/${state.window.theme || 'white'}.png`,
         setTrackerStatus: (settings) => tray.setImage(settings.trayIcon),
@@ -69,12 +59,8 @@ const platforms = {
             skipTaskbar: false,
         },
         init: () => null,
-        onOpen: () => {
-            app.dock.show();
-        },
-        onHide: () => {
-            app.dock.hide();
-        },
+        onOpen: () => app.dock.show(),
+        onHide: () => app.dock.hide(),
         getWindowIcon: () => `png/blue.png`,
         getTrayIcon: isActive => isActive ? 'mac/activeTemplate.png' : 'mac/inactive.png',
         setTrackerStatus: (settings) => {
