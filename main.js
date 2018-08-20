@@ -85,29 +85,6 @@ const platforms = {
 }
 const platform = platforms[process.platform]();
 
-function getIcon(imagePath) {
-    return getFile(`assets/icons/${imagePath}`);
-}
-
-function getFile(path) {
-    return `${__dirname}/${path}`;
-}
-
-function hideApp(event) {
-    if (event && event.preventDefault) {
-        event.preventDefault();
-    }
-    if (mainWindow) {
-        mainWindow.hide();
-    }
-    platform.onHide();
-}
-
-function quitApp() {
-    state.isQuitting = true;
-    app.quit();
-}
-
 function createWindow () {
   mainWindow = new BrowserWindow({
     width: state.window.width,
@@ -185,12 +162,35 @@ const openApp = () => {
     reloadTrackerStatus();
 }
 
+function hideApp(event) {
+    if (event && event.preventDefault) {
+        event.preventDefault();
+    }
+    if (mainWindow) {
+        mainWindow.hide();
+    }
+    platform.onHide();
+}
+
+function quitApp() {
+    state.isQuitting = true;
+    app.quit();
+}
+
 const toggleApp = () => {
     if (mainWindow && mainWindow.isVisible() && !mainWindow.isMinimized()) {
         hideApp();
     } else {
         openApp();
     }
+}
+
+function getIcon(imagePath) {
+    return getFile(`assets/icons/${imagePath}`);
+}
+
+function getFile(path) {
+    return `${__dirname}/${path}`;
 }
 
 platform.init();
