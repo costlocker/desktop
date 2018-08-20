@@ -11,6 +11,9 @@ cache:
   directories:
   - node_modules
   - $HOME/.cache/electron
+  - $HOME/.cache/electron-builder
+  - $HOME/Library/Caches/electron
+  - $HOME/Library/Caches/electron-builder
 
 install:
   - npm install
