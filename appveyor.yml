@@ -18,7 +18,6 @@ build_script:
   - npm run "package-win-%PLATFORM%-installer"
 
 after_build:
-  - ps: Get-ChildItem "dist\Costlocker*.exe" | Rename-Item -NewName { $_.Name -replace ' ','-' }
   - dir dist
 
 test: off
