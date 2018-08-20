@@ -1,6 +1,9 @@
 
 # Costlocker desktop app
 
+[![Build Status](https://travis-ci.org/costlocker/desktop.svg?branch=master)](https://travis-ci.org/costlocker/desktop)
+[![Windows status](https://ci.appveyor.com/api/projects/status/whw8pi4r8hbq7qoh?svg=true&passingText=Windows)](https://ci.appveyor.com/project/costlockerbot/desktop)
+
 **Work in Progress!**
 We recommend to use [Costlocker from App Store](https://blog.costlocker.com/45af1ab4fcb8) for Mac users.
 
