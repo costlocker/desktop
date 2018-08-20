@@ -28,7 +28,7 @@ deploy:
   file: 
     - dist/*.zip
     - dist/*.dmg
-  draft: true
+  draft: false
   prerelease: true
   skip_cleanup: true
   on:
