@@ -23,6 +23,12 @@ We recommend to use [Costlocker from App Store](https://blog.costlocker.com/45af
 
 ## Changelog
 
+#### 2018.8.20
+
+* Tray & taskbar/dock
+* _Binaries:_ Windows installer, MacOS dmg, Linux zip
+* _Internal:_ electron-builder
+
 #### 2018.07.16
 
 * _Windows:_ fix loading application icon
