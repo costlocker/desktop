@@ -16,20 +16,14 @@ install:
   - npm install
 script:
   - npm run package-$TRAVIS_OS_NAME
-  - ls -lA release-builds
-
-before_deploy: |
-  (
-    cd release-builds
-    mv Costlocker* Costlocker
-    tar -czf "$TRAVIS_OS_NAME-$TRAVIS_TAG.tar.gz" Costlocker
-    ls -lA
-  )
+  - ls -lA dist
 
 deploy:
   provider: releases
   api_key: $GITHUB_TOKEN
-  file: release-builds/$TRAVIS_OS_NAME-$TRAVIS_TAG.tar.gz
+  file: 
+    - dist/*.zip
+    - dist/*.dmg
   draft: false
   prerelease: true
   skip_cleanup: true

@@ -2,20 +2,22 @@
   "name": "costlocker-desktop",
   "productName": "Costlocker",
   "description": "Costlocker Tracking Desktop App",
-  "author": "Costlocker",
+  "author": {
+    "name": "Costlocker",
+    "email": "development@costlocker.com"
+  },
   "version": "2018.07.16",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "package-osx": "electron-packager ./ --overwrite --platform=darwin --arch=x64 --icon=assets/icons/mac/icon.icns --prune=true --out=release-builds",
+    "package-osx": "electron-builder --mac --publish never",
     "package-win": "electron-builder --win --publish never",
-    "package-linux": "electron-packager ./ Costlocker --overwrite --asar --platform=linux --arch=x64 --icon=assets/icons/png/1024x2014.png --prune=true --out=release-builds"
+    "package-linux": "electron-builder --linux --publish never"
   },
   "devDependencies": {
     "electron": "^2.0.2",
-    "electron-builder": "^20.28.1",
-    "electron-packager": "^12.1.0"
+    "electron-builder": "^20.28.1"
   },
   "dependencies": {
     "desktop-idle": "git+https://github.com/CudoVentures/node-desktop-idle.git#prebuild"
@@ -38,6 +40,23 @@
       "include": "nsis/installer.nsh",
       "shortcutName": "Costlocker",
       "artifactName": "win-installer-x86-${version}.${ext}"
+    },
+    "linux": {
+      "target": [
+        { "target": "zip", "arch": ["x64"] }
+      ],
+      "icon": "assets/icons/mac/icon.icns",
+      "category": "Office",
+      "executableName": "Costlocker",
+      "artifactName": "linux-${version}.${ext}"
+    },
+    "mac": {
+      "target": [
+        { "target": "dmg" }
+      ],
+      "icon": "assets/icons/mac/icon.icns",
+      "category": "public.app-category.business",
+      "artifactName": "mac-${version}.${ext}"
     }
   }
 }
