@@ -4,22 +4,18 @@
 [![Build Status](https://travis-ci.org/costlocker/desktop.svg?branch=master)](https://travis-ci.org/costlocker/desktop)
 [![Windows status](https://ci.appveyor.com/api/projects/status/whw8pi4r8hbq7qoh?svg=true&passingText=Windows)](https://ci.appveyor.com/project/costlockerbot/desktop)
 
-**Work in Progress!**
-We recommend to use [Costlocker from App Store](https://blog.costlocker.com/45af1ab4fcb8) for Mac users.
-
 ## Usage
 
-1. [Download binary from releases](https://github.com/costlocker/desktop/releases)
-1. Unzip the file
-1. Create shortcut
-    * `Costlocker.exe` on Windows
-    * symlink `Costlocker` on Linux
-    * move `Costlocker.app` to Applications on Mac
-1. Execute binary _(might cause warnings)_
+1. [Download an app for your OS](https://github.com/costlocker/desktop/releases)
+1. Install
+    * _Windows:_ run installer
+    * _Linux:_ unzip the file, create symlink `Costlocker`
+    * _Mac:_ move `Costlocker.app` to Applications
+1. Run the app
 
 #### Platform limitations
 
-* _Windows_ - might not work on older systems _(`Connection timed-out` error)_
+* _Mac:_ we recommend to use [Costlocker from App Store](https://blog.costlocker.com/45af1ab4fcb8) for Mac users. It has no warning about an unsigned app.
 
 ## Changelog
 
@@ -61,3 +57,9 @@ npm run package-osx
 npm run package-linux
 npm run package-win
 ```
+
+### Release
+
+1. [Changelog commit + tag](https://github.com/costlocker/desktop/commit/3ff8cb7)
+1. Travis/Appveyor uploads binaries to an pre-release
+1. Publish the release
