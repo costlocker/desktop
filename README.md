@@ -48,18 +48,48 @@
 ## Development
 
 ```bash
-# development
 npm install
 npm start
-
-# release
-npm run package-osx
-npm run package-linux
-npm run package-win
 ```
 
 ### Release
 
 1. [Changelog commit + tag](https://github.com/costlocker/desktop/commit/3ff8cb7)
 1. Travis/Appveyor uploads binaries to an pre-release
-1. Publish the release
+    ```bash
+    npm run package-osx
+    npm run package-linux
+    npm run package-win
+    ```
+1. [Sign an Windows app](https://www.digicert.com/code-signing/ev-code-signing-certificate-installation.htm#sign) _([Win7](https://knowledge.digicert.com/solution/SO20528.html))_
+    ```bash
+    # 1) plug an USB dongle
+    # 2) sign the app
+    "C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\signtool.exe" sign /tr http://timestamp.digicert.com /td sha256 /fd sha256 /n "Costlocker SE" /v "win-installer-x86-2018.8.20.exe"
+        The following certificate was selected:
+        Issued to: Costlocker SE
+        Issued by: DigiCert EV Code Signing CA (SHA2)
+        Expires:   Fri Jul 24 14:00:00 2020
+        SHA1 hash: A71780C9FA2FC15E04B05D09404A7688813671DC
+
+        Done Adding Additional Store
+        Successfully signed and timestamped: win-installer-x86-2018.8.20.exe
+
+        Number of files successfully Signed: 1
+        Number of warnings: 0
+        Number of errors: 0
+1. [Verify the signed app](https://docs.microsoft.com/cs-cz/windows/desktop/SecCrypto/using-signtool-to-verify-a-file-signature) - _[SignTool Error?](https://knowledge.digicert.com/solution/SO21771.html)_
+    ```bash
+    "C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\signtool.exe" verify /pa /v "win-installer-x86-2018.8.20.exe"
+        Verifying: win-installer-x86-2018.8.20.exe
+        Hash of file (sha256): ...
+        Signing Certificate Chain: ...
+        The signature is timestamped: Wed Aug 22 09:24:30 2018
+        Timestamp Verified by: ...
+        Successfully verified: win-installer-x86-2018.8.20.exe
+
+        Number of files successfully Verified: 1
+        Number of warnings: 0
+        Number of errors: 0
+    ```
+1. Upload the signed app & publish the release
