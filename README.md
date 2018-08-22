@@ -19,11 +19,11 @@
 
 ## Changelog
 
-#### 2018.8.20
+#### 2018.8.22
 
 * Tray & taskbar/dock
 * _Binaries:_ Windows installer, MacOS dmg, Linux zip
-* _Internal:_ electron-builder
+* _Internal:_ electron-builder, Windows code signing
 
 #### 2018.07.16
 
