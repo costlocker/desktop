@@ -10,6 +10,7 @@ const state = {
         minSeconds: null,
         currentSeconds: null,
         showIdleTime: null,
+        isSuspended: false,
     },
     isQuitting: false,
     window: {
@@ -215,6 +216,7 @@ platform.init();
 app.on('ready', () => {
     createTray();
     openApp();
+    checkIdleDuringSleep();
 });
 app.on('before-quit', () => state.isQuitting = true);
 
@@ -222,8 +224,30 @@ ipcMain.on('app-show', openApp);
 ipcMain.on('app-hide', hideApp);
 ipcMain.on('app-quit', quitApp);
 
+function checkIdleDuringSleep() {
+    const powerMonitor = require('electron').powerMonitor;
+    powerMonitor.on('suspend', () => {
+        state.idleTime.isSuspended = true;
+    });
+    powerMonitor.on('resume', () => {
+        // app isn't opened if checkIdleTime is called immediately when user logs in
+        const delayAfterResumeInSeconds = 5;
+        setTimeout(
+            () => {
+                state.idleTime.isSuspended = false;
+                state.idleTime.currentSeconds -= delayAfterResumeInSeconds;
+            },
+            delayAfterResumeInSeconds * 1000
+        );
+    });
+}
+
 const checkIdleTime = () => {
     if (!state.idleTime.minSeconds) {
+        return;
+    }
+    if (state.idleTime.isSuspended) {
+        state.idleTime.currentSeconds++;
         return;
     }
     const now = Math.floor(new Date().getTime() / 1000);
