@@ -63,11 +63,24 @@ const platforms = {
         init: () => null,
         onOpen: () => app.dock.show(),
         onHide: () => app.dock.hide(),
-        setMenu: (menuItems) => {
+        setMenu: (standardMenu) => {
+            // Mac menu is different, because it's application menu
+            const menuItems = standardMenu.slice(1); // Open option make no sense
+            // Enable keyboard shortcuts
+            menuItems[2].accelerator = 'Command+Q';
             Menu.setApplicationMenu(Menu.buildFromTemplate([
                 {
                     label: app.getName(),
                     submenu: menuItems,
+                },
+                {
+                    label: "Edit",
+                    submenu: [
+                        { role: 'cut' },
+                        { role: 'copy' },
+                        { role: 'paste' },
+                        { role: 'selectAll' },
+                    ],
                 },
             ]));
             app.dock.setMenu(Menu.buildFromTemplate([
