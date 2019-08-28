@@ -26,6 +26,7 @@ const platforms = {
         init: () => null,
         onOpen: () => mainWindow ? setTimeout(() => mainWindow.setSkipTaskbar(false), 200) : null,
         onHide: () => mainWindow ? mainWindow.setSkipTaskbar(true) : null,
+        setMenu: (menuItems) => tray.setContextMenu(Menu.buildFromTemplate(menuItems)),
         getWindowIcon: () => 'png/blue.png',
         getTrayIcon: isActive => isActive ? 'png/blue.png' : `png/${state.window.theme || 'white'}.png`,
         setTrackerStatus: (settings) => tray.setImage(settings.trayIcon),
@@ -38,6 +39,7 @@ const platforms = {
         init: () => app.setAppUserModelId('com.github.costlocker.desktop'),
         onOpen: () => mainWindow ? mainWindow.setSkipTaskbar(false) : null,
         onHide: () => mainWindow ? mainWindow.setSkipTaskbar(true) : null,
+        setMenu: (menuItems) => tray.setContextMenu(Menu.buildFromTemplate(menuItems)),
         getWindowIcon: () => 'win/icon.ico',
         getTrayIcon: (isActive) => {
             const theme = 
@@ -61,6 +63,20 @@ const platforms = {
         init: () => null,
         onOpen: () => app.dock.show(),
         onHide: () => app.dock.hide(),
+        setMenu: (menuItems) => {
+            Menu.setApplicationMenu(Menu.buildFromTemplate([
+                {
+                    label: app.getName(),
+                    submenu: menuItems,
+                },
+            ]));
+            app.dock.setMenu(Menu.buildFromTemplate([
+                {	
+                    label: 'Minimize',	
+                    click: hideApp,	
+                },
+            ]));
+        },
         getWindowIcon: () => `png/blue.png`,
         getTrayIcon: isActive => isActive ? 'mac/activeTemplate.png' : 'mac/inactive.png',
         setTrackerStatus: (settings) => {
@@ -107,8 +123,8 @@ function createTray () {
   tray.setToolTip('Costlocker');	
   tray.on('click', toggleApp);	
   tray.on('double-click', toggleApp);	
-  tray.on('right-click', toggleApp);	
-  tray.setContextMenu(Menu.buildFromTemplate([	
+  tray.on('right-click', toggleApp);
+  platform.setMenu([
     {	
         label: 'Open',	
         click: openApp,	
@@ -130,8 +146,8 @@ function createTray () {
     {
         label: `About (v${app.getVersion()})`,	
         click: () => require('electron').shell.openExternal('https://costlocker.com?utm_source=desktop'),	
-    },	
-  ]));
+    },
+  ]);
 }
 
 const openApp = () => {
