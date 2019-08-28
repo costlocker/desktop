@@ -6,8 +6,11 @@ const state = {
     traySettings: null,
     trayInterval: null,
     reminderTimeout: null,
-    idleTimeSeconds: null,
-    detectIdletime: null,
+    idleTime: {
+        minSeconds: null,
+        currentSeconds: null,
+        showIdleTime: null,
+    },
     isQuitting: false,
     window: {
         theme: null,
@@ -220,16 +223,21 @@ ipcMain.on('app-hide', hideApp);
 ipcMain.on('app-quit', quitApp);
 
 const checkIdleTime = () => {
-    if (!state.idleTimeSeconds) {
+    if (!state.idleTime.minSeconds) {
         return;
     }
     const now = Math.floor(new Date().getTime() / 1000);
     const idleTime = Math.floor(desktopIdle.getIdleTime());
-    if (idleTime != state.idleTimeSeconds) {
-        return;
+    const isIdleTimeShown =
+        // limit was reached in previous check
+        state.idleTime.currentSeconds >= state.idleTime.minSeconds &&
+        // computer is not idle
+        idleTime < state.idleTime.currentSeconds;
+    if (isIdleTimeShown) {
+        openApp();
+        state.idleTime.showIdleTime(now - state.idleTime.currentSeconds);
     }
-    openApp();
-    state.detectIdletime(now - idleTime);
+    state.idleTime.currentSeconds = idleTime;
 };
 
 const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
@@ -309,8 +317,8 @@ ipcMain.on('update-reminder', (event, args) => {
 });
 
 ipcMain.on('update-idletime', (event, args) => {
-    state.idleTimeSeconds = args[0];
-    state.detectIdletime = (timestamp) => event.sender.send('idletime-detected', timestamp);
+    state.idleTime.minSeconds = args[0];
+    state.idleTime.showIdleTime = (timestamp) => event.sender.send('idletime-detected', timestamp);
 });
 
 const reloadWindowSettings = () => {
