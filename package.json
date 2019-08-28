@@ -16,7 +16,7 @@
     "package-linux": "electron-builder --linux --publish never"
   },
   "devDependencies": {
-    "electron": "^2.0.2",
+    "electron": "^2.0.18",
     "electron-builder": "^20.28.1"
   },
   "dependencies": {
