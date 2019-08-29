@@ -19,6 +19,12 @@
 
 ## Changelog
 
+#### 2019.8.29
+
+* Better idle time detection
+* _Mac:_ behavior like in native app (no tray menu, keyboard shortcuts)
+* _Internal:_ update electron
+
 #### 2018.8.22
 
 * Tray & taskbar/dock
