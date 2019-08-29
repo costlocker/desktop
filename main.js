@@ -10,7 +10,7 @@ const state = {
         minSeconds: null,
         currentSeconds: null,
         showIdleTime: null,
-        isSuspended: false,
+        suspendTimestamp: null,
     },
     isQuitting: false,
     window: {
@@ -226,31 +226,22 @@ ipcMain.on('app-quit', quitApp);
 
 function checkIdleDuringSleep() {
     const powerMonitor = require('electron').powerMonitor;
-    powerMonitor.on('suspend', () => {
-        state.idleTime.isSuspended = true;
-    });
+    powerMonitor.on('suspend', () => state.idleTime.suspendTimestamp = getCurrentTimestamp());
     powerMonitor.on('resume', () => {
         // app isn't opened if checkIdleTime is called immediately when user logs in
         const delayAfterResumeInSeconds = 5;
+        state.idleTime.currentSeconds += (getCurrentTimestamp() - state.idleTime.suspendTimestamp)
         setTimeout(
-            () => {
-                state.idleTime.isSuspended = false;
-                state.idleTime.currentSeconds -= delayAfterResumeInSeconds;
-            },
+            () => state.idleTime.suspendTimestamp = null,
             delayAfterResumeInSeconds * 1000
         );
     });
 }
 
-const checkIdleTime = () => {
-    if (!state.idleTime.minSeconds) {
+function checkIdleTime () {
+    if (!state.idleTime.minSeconds || state.idleTime.suspendTimestamp) {
         return;
     }
-    if (state.idleTime.isSuspended) {
-        state.idleTime.currentSeconds++;
-        return;
-    }
-    const now = Math.floor(new Date().getTime() / 1000);
     const idleTime = Math.floor(desktopIdle.getIdleTime());
     const isIdleTimeShown =
         // limit was reached in previous check
@@ -259,10 +250,14 @@ const checkIdleTime = () => {
         idleTime < state.idleTime.currentSeconds;
     if (isIdleTimeShown) {
         openApp();
-        state.idleTime.showIdleTime(now - state.idleTime.currentSeconds);
+        state.idleTime.showIdleTime(getCurrentTimestamp() - state.idleTime.currentSeconds);
     }
     state.idleTime.currentSeconds = idleTime;
 };
+
+function getCurrentTimestamp() {
+    return Math.floor(new Date().getTime() / 1000);
+}
 
 const formatSeconds = (seconds) => new Date(seconds * 1000).toISOString().substr(11, 8);
 const reloadTrackerStatus = () => {
