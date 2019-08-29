@@ -229,7 +229,7 @@ function checkIdleDuringSleep() {
     powerMonitor.on('suspend', () => state.idleTime.suspendTimestamp = getCurrentTimestamp());
     powerMonitor.on('resume', () => {
         // app isn't opened if checkIdleTime is called immediately when user logs in
-        const delayAfterResumeInSeconds = 5;
+        const delayAfterResumeInSeconds = 3;
         state.idleTime.currentSeconds += (getCurrentTimestamp() - state.idleTime.suspendTimestamp)
         setTimeout(
             () => state.idleTime.suspendTimestamp = null,
