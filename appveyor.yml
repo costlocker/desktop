@@ -30,7 +30,7 @@ deploy:
   - provider: GitHub
     artifact: win-release
     auth_token: 
-      secure: E3NBpaH+w3/Ci4z2IihhM6BtbZ4/4YZ8y5XLoJDnneK4+HhhSCCMdI2kDOdyAtCl
+      secure: IMzpSj/H+cK4F2xUeNhZgD8mGE6sidI+JQykRr+v0LGz59P2LfPopshK4C8rtYeH
     draft: false
     prerelease: true
     force_update: true
