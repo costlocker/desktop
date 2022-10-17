@@ -6,7 +6,7 @@
     "name": "Costlocker",
     "email": "development@costlocker.com"
   },
-  "version": "2019.8.29",
+  "version": "2022.9.07",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
