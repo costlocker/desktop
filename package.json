@@ -6,7 +6,7 @@
     "name": "Costlocker",
     "email": "development@costlocker.com"
   },
-  "version": "2019.8.29",
+  "version": "2022.10.17",
   "license": "MIT",
   "main": "main.js",
   "scripts": {
@@ -16,7 +16,7 @@
     "package-linux": "electron-builder --linux --publish never"
   },
   "devDependencies": {
-    "electron": "^2.0.18",
+    "electron": "^13.6.6",
     "electron-builder": "^20.28.1"
   },
   "dependencies": {
