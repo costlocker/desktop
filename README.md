@@ -19,6 +19,11 @@
 
 ## Changelog
 
+#### 2022.10.17
+* 
+* Readme update
+* _Internal:_ Fix formatting
+
 #### 2019.8.29
 
 * Better idle time detection

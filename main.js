@@ -46,7 +46,7 @@ const platforms = {
         setMenu: (menuItems) => tray.setContextMenu(Menu.buildFromTemplate(menuItems)),
         getWindowIcon: () => 'win/icon.ico',
         getTrayIcon: (isActive) => {
-            const theme = 
+            const theme =
                 state.window.theme ||
                 (systemPreferences.getColor('desktop') == '#000000' ? 'white' : 'black');
             return isActive ? 'png/blue.png' : `png/${theme}.png`;
@@ -88,9 +88,9 @@ const platforms = {
                 },
             ]));
             app.dock.setMenu(Menu.buildFromTemplate([
-                {	
-                    label: 'Minimize',	
-                    click: hideApp,	
+                {
+                    label: 'Minimize',
+                    click: hideApp,
                 },
             ]));
         },
@@ -129,40 +129,41 @@ function createWindow () {
   mainWindow.on('closed', function () {
     mainWindow = null;
   });
-  mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('webview-devtools'));
+  mainWindow.webContents.on('devtools-opened', () => mainWindow.webContents.send('' +
+      'webview-devtools'));
 }
 
 function createTray () {
   if (tray) {
     return;
   }
-  tray = new Tray(getIcon(platform.getTrayIcon()));	
-  tray.setToolTip('Costlocker');	
-  tray.on('click', toggleApp);	
-  tray.on('double-click', toggleApp);	
+  tray = new Tray(getIcon(platform.getTrayIcon()));
+  tray.setToolTip('Costlocker');
+  tray.on('click', toggleApp);
+  tray.on('double-click', toggleApp);
   tray.on('right-click', toggleApp);
   platform.setMenu([
-    {	
-        label: 'Open',	
-        click: openApp,	
-    },	
-    {	
-        label: 'Minimize',	
-        click: hideApp,	
-    },	
-    {	
-        type: 'separator'	
-    },	
-    {	
-        label: 'Quit',	
-        click: quitApp,	
-    },	
-    {	
-        type: 'separator'	
+    {
+        label: 'Open',
+        click: openApp,
     },
     {
-        label: `About (v${app.getVersion()})`,	
-        click: () => require('electron').shell.openExternal('https://costlocker.com?utm_source=desktop'),	
+        label: 'Minimize',
+        click: hideApp,
+    },
+    {
+        type: 'separator'
+    },
+    {
+        label: 'Quit',
+        click: quitApp,
+    },
+    {
+        type: 'separator'
+    },
+    {
+        label: `About (v${app.getVersion()})`,
+        click: () => require('electron').shell.openExternal('https://costlocker.com?utm_source=desktop'),
     },
   ]);
 }
