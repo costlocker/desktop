@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "electron": "^2.0.18",
-    "electron-builder": "^20.28.1"
+    "electron-builder": "^20.44.4"
   },
   "dependencies": {
     "desktop-idle": "git+https://github.com/CudoVentures/node-desktop-idle.git#prebuild"
